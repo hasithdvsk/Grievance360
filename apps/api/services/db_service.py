@@ -386,7 +386,12 @@ def save_complaint_and_audit(
         "actor_id": "AICTE_NLP_ROUTER_V1",
         "timestamp": now_iso,
     }
-    MEMORY_AUDIT_LOGS[new_complaint_id] = [audit_entry]
+    # 3. Register ticket in Redis SLA Watchtower sorted set
+    try:
+        from services.watchtower import schedule_ticket_in_watchtower
+        schedule_ticket_in_watchtower(new_complaint_id, sla_deadline.timestamp())
+    except Exception as e:
+        print(f"[Database Service] Notice: Could not schedule in watchtower ({e})")
 
     return record
 

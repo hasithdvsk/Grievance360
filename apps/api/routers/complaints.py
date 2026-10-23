@@ -147,3 +147,42 @@ async def list_complaints(
                     continue
                 results.append(complaint_full)
     return results
+
+
+@router.post(
+    "/watchtower/scan",
+    summary="Trigger SLA Watchtower Escalation Scan",
+    description=(
+        "Executes Celery / Redis sorted set scan for complaints whose SLA deadline "
+        "has breached. Escalates status to ESCALATED, upgrades priority to CRITICAL, "
+        "logs automated audit records, and triggers dispatch alerts."
+    ),
+)
+async def trigger_watchtower_scan():
+    from services.watchtower import scan_and_escalate_breached_slas
+    result = scan_and_escalate_breached_slas()
+    return result
+
+
+@router.get(
+    "/watchtower/status",
+    summary="Get SLA Watchtower Status",
+    description="Returns current status of Redis SLA Watchtower and number of actively monitored tickets.",
+)
+async def get_watchtower_status():
+    from services.watchtower import get_redis_client, SLA_WATCHTOWER_KEY, _FALLBACK_WATCHTOWER
+    r = get_redis_client()
+    redis_count = 0
+    if r:
+        try:
+            redis_count = r.zcard(SLA_WATCHTOWER_KEY) or 0
+        except Exception:
+            pass
+
+    return {
+        "engine": "Redis & Celery SLA Watchtower",
+        "redis_connected": r is not None,
+        "monitored_in_redis": redis_count,
+        "monitored_in_fallback": len(_FALLBACK_WATCHTOWER),
+        "target_sorted_set": SLA_WATCHTOWER_KEY,
+    }
