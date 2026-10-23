@@ -169,3 +169,35 @@ Telegram Webhook router receiving JSON update payloads.
 - `/status <TicketID>` or `STATUS <TicketID>`: Instant status, bureau, priority, and SLA remaining lookup.
 - `/file <Description>` or `FILE <Description>`: AI triage, auto-bureau routing, SLA calculation, and database registration.
 - `/start` or `/help` or `HELP`: Interactive help menu.
+
+---
+
+### `POST /api/v1/bot/chat`
+Interactive in-app AI assistant supporting conversational queries, STATUS lookups, and instant FILE grievance triage.
+
+**Request Body:**
+```json
+{
+  "message": "STATUS GRV-2026-00001",
+  "conversation_id": "session-12345"
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "reply": "### 🏛️ AICTE Grievance Live Status\n- **Ticket ID:** `GRV-2026-00001`\n- **Status:** `IN_PROGRESS`\n- **Assigned Bureau:** **Anti-Ragging Bureau**...",
+  "action_type": "STATUS",
+  "metadata": {
+    "tracking_id": "GRV-2026-00001",
+    "status": "IN_PROGRESS",
+    "bureau": "Anti-Ragging Bureau",
+    "priority": "CRITICAL"
+  }
+}
+```
+
+**Action Types:**
+- `STATUS`: Response from ticket status verification.
+- `FILE`: Automated ticket generation with AI bureau and dynamic priority classification.
+- `INFO`: Informational guidance and quick-start instructions.

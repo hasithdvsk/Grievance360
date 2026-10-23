@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import Link from "next/link";
 import "./globals.css";
 import { ShieldCheck, FilePlus2, Search, Activity, ExternalLink, Sparkles } from "lucide-react";
+import ChatWidget from "@/components/ChatWidget";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -98,6 +99,9 @@ export default function RootLayout({
             </div>
           </div>
         </footer>
+
+        {/* Floating AI & Messenger Chatbot Widget (Prompt 13) */}
+        <ChatWidget />
       </body>
     </html>
   );
