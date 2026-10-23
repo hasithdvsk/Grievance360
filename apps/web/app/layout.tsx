@@ -60,6 +60,13 @@ export default function RootLayout({
                 <span className="hidden sm:inline">Track Ticket</span>
               </Link>
               <Link
+                href="/admin/dashboard"
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-medium text-slate-300 hover:text-white rounded-lg hover:bg-slate-800/60 transition-colors"
+              >
+                <Activity className="w-4 h-4 text-emerald-400" />
+                <span className="hidden sm:inline">Admin Analytics</span>
+              </Link>
+              <Link
                 href="/file-complaint"
                 className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs sm:text-sm font-semibold text-white bg-blue-600 hover:bg-blue-500 rounded-lg shadow-lg shadow-blue-600/20 transition-all hover:scale-[1.02]"
               >
