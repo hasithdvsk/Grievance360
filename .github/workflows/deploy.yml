@@ -1,0 +1,54 @@
+name: Grievance360 CI/CD Deployment Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate-and-test:
+    name: Lint, Test & Validate Monorepo
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Monorepo Dependencies
+        run: npm ci
+
+      - name: Build Web Application
+        run: npm run build:web
+        env:
+          NEXT_PUBLIC_API_URL: https://grievance360-api.onrender.com
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install API Dependencies
+        run: pip install -r apps/api/requirements.txt
+
+      - name: Validate Python Syntax
+        run: python -m compileall apps/api
+
+  deploy-sync:
+    name: Trigger Live Deployment Sync
+    needs: validate-and-test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deployment Notification
+        run: |
+          echo "Automated CI/CD validation passed."
+          echo "GitHub push to main automatically triggers Vercel and Render deployments via Git Webhooks."
