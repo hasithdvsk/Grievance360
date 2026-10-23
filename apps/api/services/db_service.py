@@ -104,6 +104,7 @@ MEMORY_COMPLAINTS[_SEED_COMPLAINT_ID] = {
     "created_at": (datetime.now(timezone.utc) - timedelta(hours=4)).isoformat(),
     "updated_at": (datetime.now(timezone.utc) - timedelta(hours=2)).isoformat(),
 }
+MEMORY_COMPLAINTS["GRV-2026-00001"] = MEMORY_COMPLAINTS[_SEED_COMPLAINT_ID]
 
 MEMORY_AUDIT_LOGS[_SEED_COMPLAINT_ID] = [
     {
@@ -491,5 +492,15 @@ def get_complaint_by_id_or_tracking(identifier: str) -> Optional[Dict[str, Any]]
         actual_id = complaint_data["complaint_id"]
         complaint_data["timeline"] = MEMORY_AUDIT_LOGS.get(actual_id, [])
         return complaint_data
+
+    # Case-insensitive lookup across tracking_id and complaint_id
+    id_upper = identifier.strip().upper()
+    id_lower = identifier.strip().lower()
+    for c in MEMORY_COMPLAINTS.values():
+        if c.get("tracking_id", "").upper() == id_upper or c.get("complaint_id", "").lower() == id_lower:
+            complaint_data = dict(c)
+            actual_id = complaint_data["complaint_id"]
+            complaint_data["timeline"] = MEMORY_AUDIT_LOGS.get(actual_id, [])
+            return complaint_data
 
     return None

@@ -13,7 +13,7 @@ import os
 # Add apps/api directory to sys.path so router/service imports resolve consistently
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from routers import complaints, health, analytics, multilingual
+from routers import complaints, health, analytics, multilingual, whatsapp_bot, telegram_bot
 from services.nlp_engine import NLPEngine
 
 
@@ -66,6 +66,8 @@ app.include_router(health.router)
 app.include_router(complaints.router)
 app.include_router(analytics.router)
 app.include_router(multilingual.router)
+app.include_router(whatsapp_bot.router)
+app.include_router(telegram_bot.router)
 
 
 @app.get("/", tags=["Root"])
@@ -84,6 +86,8 @@ async def root():
             "track_complaint": "GET /api/v1/complaints/track/{complaint_id}",
             "list_complaints": "GET /api/v1/complaints/",
             "health_probe": "GET /api/v1/health/",
+            "whatsapp_bot": "POST /api/v1/bot/whatsapp",
+            "telegram_bot": "POST /api/v1/bot/telegram",
         },
     }
 
