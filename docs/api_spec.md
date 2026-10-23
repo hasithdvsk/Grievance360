@@ -4,92 +4,122 @@ Base URL: `http://localhost:8000/api/v1`
 
 ---
 
-## 1. Health & Readiness
+## 1. Health Probe
 
-### `GET /health/`
+### `GET /api/v1/health/`
 Checks database, redis, and NLP engine connectivity.
 
 **Response (200 OK):**
 ```json
 {
   "status": "healthy",
-  "timestamp": "2026-10-23T10:14:33.123456",
+  "timestamp": "2026-10-23T10:41:00.123456Z",
   "services": {
     "database": "connected",
     "redis": "connected",
-    "nlp_pipeline": "ready"
+    "nlp_pipeline": "ready",
+    "engine": "SentenceTransformer (all-MiniLM-L6-v2)"
   }
 }
 ```
 
 ---
 
-## 2. Grievance Management
+## 2. Complaint Registration & Dynamic AI Triage
 
-### `GET /grievances/`
-Retrieve list of grievances with optional filtering.
-
-**Query Parameters:**
-- `status` (optional, string): e.g. `OPEN`, `IN_PROGRESS`, `RESOLVED`, `ESCALATED`
-- `category` (optional, string): e.g. `Water Supply & Sewage Board`
-
-**Response (200 OK):**
-```json
-[
-  {
-    "id": "1",
-    "ticket_id": "GRV-2026-00101",
-    "title": "High voltage fluctuation damaging electronic meters",
-    "description": "Repeated voltage spikes observed between 6 PM to 9 PM, caused transformer trip.",
-    "category": "Electricity & Power",
-    "priority": "HIGH",
-    "status": "IN_PROGRESS",
-    "department": "Public Works & Energy",
-    "citizen_name": "Priya Nair",
-    "created_at": "2026-10-22T09:30:00Z",
-    "updated_at": "2026-10-23T04:15:00Z"
-  }
-]
-```
-
----
-
-### `POST /grievances/`
-Submit a new citizen grievance for AI triage.
+### `POST /api/v1/complaints/register`
+Accepts complaint details, embeds text using SentenceTransformer, routes to AICTE Bureau, assigns dynamic priority & SLA deadline, checks for duplicate complaints, and persists to PostgreSQL.
 
 **Request Body:**
 ```json
 {
-  "title": "Potable water contamination in Ward 7",
-  "description": "For the past 4 days, tap water supplied to block B has high turbidity and foul odor.",
-  "category": "Water Supply & Sanitation",
-  "citizen_name": "Aarav Sharma",
-  "citizen_email": "aarav@example.com",
-  "location": "Ward 7, Sector 12"
+  "title": "Senior hostel residents imposing physical roll calls and verbal abuse",
+  "description": "Senior students in Hostel Block C are threatening first-year students with physical violence and ragging during midnight hours.",
+  "complainant_role": "STUDENT",
+  "complainant_email": "student.victim@example.org",
+  "complainant_phone": "+919811223344",
+  "institution_aicte_id": "1-10001001"
 }
 ```
 
 **Response (201 Created):**
 ```json
 {
-  "id": "c1f7a461-9c17-488b-a7eb-94e82df471aa",
-  "ticket_id": "GRV-2026-00103",
-  "title": "Potable water contamination in Ward 7",
-  "description": "For the past 4 days, tap water supplied to block B has high turbidity and foul odor.",
-  "category": "Water Supply & Sanitation",
-  "priority": "MEDIUM",
-  "status": "OPEN",
-  "department": "Municipal Grievance Cell",
-  "citizen_name": "Aarav Sharma",
-  "created_at": "2026-10-23T10:14:43Z",
-  "updated_at": "2026-10-23T10:14:43Z"
+  "tracking_id": "GRV-2026-00102",
+  "complaint_id": "30000000-0000-0000-0000-000000000001",
+  "title": "Senior hostel residents imposing physical roll calls and verbal abuse",
+  "assigned_bureau": "Anti-Ragging Bureau",
+  "bureau_id": "10000000-0000-0000-0000-000000000001",
+  "priority": "CRITICAL",
+  "status": "AUTO_ASSIGNED",
+  "sla_deadline": "2026-10-23T22:41:00.000000Z",
+  "is_duplicate": false,
+  "master_complaint_id": null,
+  "created_at": "2026-10-23T10:41:00.000000Z",
+  "message": "Grievance filed successfully and auto-assigned to Anti-Ragging Bureau with CRITICAL priority."
 }
 ```
 
 ---
 
-### `GET /grievances/{ticket_id}`
-Fetch detailed status and audit history of a grievance.
+## 3. Complaint Tracking & Audit Timeline
+
+### `GET /api/v1/complaints/track/{complaint_id}`
+Fetches detailed complaint status, institution details, assigned bureau, SLA deadline, and complete chronological audit log timeline.
 
 **Response (200 OK):**
-Returns the grievance object matching the `ticket_id`.
+```json
+{
+  "complaint_id": "30000000-0000-0000-0000-000000000001",
+  "tracking_id": "GRV-2026-00001",
+  "title": "Hostel curfew intimidation and verbal ragging of first-year boarders",
+  "description": "Senior hostel residents in Block C subjected new entrants to unpermitted late-night physical roll calls and verbal abuse.",
+  "complainant_role": "STUDENT",
+  "complainant_email": "victim.student@example.org",
+  "complainant_phone": "+919811223344",
+  "institution_id": "20000000-0000-0000-0000-000000000001",
+  "institution_name": "Indian Institute of Technology Delhi (IIT Delhi)",
+  "institution_city": "New Delhi",
+  "institution_state": "Delhi",
+  "bureau_id": "10000000-0000-0000-0000-000000000001",
+  "bureau_name": "Anti-Ragging Bureau",
+  "priority": "CRITICAL",
+  "status": "IN_PROGRESS",
+  "is_duplicate": false,
+  "master_complaint_id": null,
+  "sla_deadline": "2026-10-23T22:00:00Z",
+  "created_at": "2026-10-23T06:00:00Z",
+  "updated_at": "2026-10-23T08:00:00Z",
+  "timeline": [
+    {
+      "log_id": "40000000-0000-0000-0000-000000000001",
+      "action_taken": "AUTO_TRIAGED_BY_AI",
+      "from_bureau_name": null,
+      "to_bureau_name": "Anti-Ragging Bureau",
+      "officer_remarks": "NLP semantic classifier detected severity keywords: curfew intimidation, ragging. Priority set to CRITICAL.",
+      "actor_id": "SYSTEM_NLP_TRIAGE_WORKER",
+      "timestamp": "2026-10-23T06:00:00Z"
+    },
+    {
+      "log_id": "40000000-0000-0000-0000-000000000002",
+      "action_taken": "NOTICE_SERVED_TO_INSTITUTION",
+      "from_bureau_name": "Anti-Ragging Bureau",
+      "to_bureau_name": "Anti-Ragging Bureau",
+      "officer_remarks": "Formal inquiry email dispatched to Dean of Student Affairs. Proactive warden report requested within 12 hours.",
+      "actor_id": "OFFICER_ANTIRAGGING_04",
+      "timestamp": "2026-10-23T08:00:00Z"
+    }
+  ]
+}
+```
+
+---
+
+## 4. List Complaints
+
+### `GET /api/v1/complaints/`
+Retrieves complaints with optional filters.
+
+**Query Parameters:**
+- `status` (optional, string): e.g. `AUTO_ASSIGNED`, `IN_PROGRESS`, `RESOLVED`, `ESCALATED`
+- `bureau` (optional, string): e.g. `Anti-Ragging`, `Approval`, `Finance`, `Legal`

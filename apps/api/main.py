@@ -1,60 +1,100 @@
 """
-Grievance360 - FastAPI Application Entry Point
-High-throughput async backend for grievance ingestion, NLP classification, and status tracking.
+Grievance360 - AICTE AI-Powered Grievance Redressal Platform
+FastAPI Application Entry Point with SentenceTransformer NLP Routing and Dynamic SLA Engine.
 """
 
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import health, grievances
-from app.core.config import settings
+from fastapi.responses import JSONResponse
+import sys
+import os
+
+# Add apps/api directory to sys.path so router/service imports resolve consistently
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+from routers import complaints, health
+from services.nlp_engine import NLPEngine
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """
-    Application lifespan management: initialize database pools,
-    load NLP embedding models, and establish Redis connection.
+    Application lifespan handler:
+    Initializes sentence-transformers embeddings model and pre-computes bureau vectors.
     """
-    print(f"🚀 Starting {settings.PROJECT_NAME} v{settings.VERSION}...")
+    print("[Grievance360 API] Initializing application services...")
+    # Trigger lazy load of singleton NLP engine at startup
+    NLPEngine.get_instance()
+    print("[Grievance360 API] NLP Engine and Bureau vectors ready.")
     yield
-    print(f"🛑 Shutting down {settings.PROJECT_NAME}...")
+    print("[Grievance360 API] Service shutdown complete.")
 
 
 app = FastAPI(
-    title=settings.PROJECT_NAME,
-    version=settings.VERSION,
-    description="Enterprise AI-Powered Grievance Redressal and Analytics Engine",
+    title="Grievance360 API",
+    version="1.0.0",
+    description=(
+        "Centralized AICTE Grievance Redressal and Analytics Platform. "
+        "Features automated sentence-transformers semantic triage, dynamic SLA assignment, "
+        "PostGIS geospatial routing, duplicate detection, and tamper-evident audit logs."
+    ),
     lifespan=lifespan,
     docs_url="/docs",
     redoc_url="/redoc",
 )
 
 # Cross-Origin Resource Sharing (CORS) Configuration
+# Enabled for Next.js frontend running on http://localhost:3000
+origins = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS,
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Include Router Modules
-app.include_router(health.router, prefix="/api/v1/health", tags=["Health"])
-app.include_router(grievances.router, prefix="/api/v1/grievances", tags=["Grievances"])
+# Register Sub-Routers
+app.include_router(health.router)
+app.include_router(complaints.router)
 
 
 @app.get("/", tags=["Root"])
 async def root():
+    """
+    Root discovery endpoint providing service health and documentation links.
+    """
     return {
-        "service": settings.PROJECT_NAME,
+        "service": "Grievance360 AICTE Grievance Redressal Engine",
         "status": "online",
-        "version": settings.VERSION,
+        "version": "1.0.0",
         "docs": "/docs",
         "redoc": "/redoc",
+        "endpoints": {
+            "register_complaint": "POST /api/v1/complaints/register",
+            "track_complaint": "GET /api/v1/complaints/track/{complaint_id}",
+            "list_complaints": "GET /api/v1/complaints/",
+            "health_probe": "GET /api/v1/health/",
+        },
     }
+
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    return JSONResponse(
+        status_code=500,
+        content={"error": "Internal Server Error", "detail": str(exc)},
+    )
 
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("main:app", host="0.0.0.0", port=settings.PORT, reload=True)
+    port = int(os.getenv("API_PORT", "8000"))
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)

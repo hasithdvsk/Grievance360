@@ -2,7 +2,7 @@
 Complaint Data Validation Models & Response Schemas
 """
 
-from pydantic import BaseModel, Field, EmailStr
+from pydantic import BaseModel, Field
 from typing import Optional, List
 from datetime import datetime
 from enum import Enum
@@ -36,7 +36,11 @@ class ComplaintRegisterRequest(BaseModel):
         description="Role of complainant: STUDENT, FACULTY, STAFF, PARENTS, CITIZEN",
         example="STUDENT",
     )
-    complainant_email: EmailStr = Field(..., example="student.victim@example.org")
+    complainant_email: str = Field(
+        ...,
+        pattern=r"^[\w\.-]+@[\w\.-]+\.\w+$",
+        example="student.victim@example.org",
+    )
     complainant_phone: Optional[str] = Field(None, example="+919876543210")
     institution_id: Optional[str] = Field(
         None,
