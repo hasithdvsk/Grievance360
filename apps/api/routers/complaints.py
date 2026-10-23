@@ -126,6 +126,32 @@ async def track_complaint(complaint_id: str):
 
 
 @router.get(
+    "/{complaint_id}/export-atr",
+    summary="Export Official Action Taken Report (ATR) PDF",
+    description="Generates an official AICTE Action Taken Report (ATR) PDF with complaint details, audit ledger, and digital seal.",
+)
+async def export_complaint_atr(complaint_id: str):
+    complaint = get_complaint_by_id_or_tracking(complaint_id)
+    if not complaint:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Complaint with ID or Tracking number '{complaint_id}' was not found.",
+        )
+
+    from services.pdf_generator import generate_atr_pdf
+    from fastapi.responses import StreamingResponse
+
+    pdf_buffer = generate_atr_pdf(complaint)
+    filename = f"AICTE_ATR_{complaint.get('tracking_id', complaint_id)}.pdf"
+
+    return StreamingResponse(
+        pdf_buffer,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f"attachment; filename={filename}"},
+    )
+
+
+@router.get(
     "/",
     response_model=List[ComplaintTrackResponse],
     summary="List Recent Complaints",
