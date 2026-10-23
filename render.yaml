@@ -23,6 +23,7 @@ services:
 
 databases:
   - name: grievance360-db
-    databaseName: grievance360
+    databaseName: grievance360_db
+    user: grievance360_user
     plan: free
     postgresMajorVersion: "15"
