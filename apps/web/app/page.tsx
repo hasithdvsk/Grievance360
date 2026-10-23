@@ -229,7 +229,7 @@ export default function HomePage() {
             </div>
             <h4 className="text-base font-bold text-white">Sentence-Transformers AI</h4>
             <p className="text-xs text-slate-400 leading-relaxed">
-              `all-MiniLM-L6-v2` compares semantic distance to filter duplicate complaints (>0.85 similarity)
+              `all-MiniLM-L6-v2` compares semantic distance to filter duplicate complaints (&gt;0.85 similarity)
               and tag critical urgency words.
             </p>
           </div>

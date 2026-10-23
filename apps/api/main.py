@@ -45,21 +45,36 @@ app = FastAPI(
 )
 
 # Cross-Origin Resource Sharing (CORS) Configuration
-# Enabled for Next.js frontend running on http://localhost:3000
+# Enabled for Next.js frontend running on localhost, Vercel preview URLs, and custom production domains
 origins = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "http://localhost:8000",
     "http://127.0.0.1:8000",
+    "https://grievance360.vercel.app",
+    "https://grievance-360.vercel.app",
 ]
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
+    allow_origin_regex=r"https://.*\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.get("/healthz", tags=["Health"])
+async def healthz():
+    """
+    Lightweight zero-dependency healthcheck for Render and Cloud Load Balancers.
+    """
+    from datetime import datetime, timezone
+    return {
+        "status": "healthy",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+    }
 
 # Register Sub-Routers
 app.include_router(health.router)
