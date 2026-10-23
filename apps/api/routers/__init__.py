@@ -1,6 +1,6 @@
 """
 API Routers Package
 """
-from . import complaints, health
+from . import complaints, health, analytics
 
-__all__ = ["complaints", "health"]
+__all__ = ["complaints", "health", "analytics"]
