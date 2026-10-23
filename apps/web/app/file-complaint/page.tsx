@@ -22,6 +22,7 @@ import {
   ArrowRight,
   Info,
 } from "lucide-react";
+import VoiceRecorder, { VoiceTranscriptionPayload } from "@/components/VoiceRecorder";
 
 // Pre-configured AICTE higher educational institutions matching packages/db/seed.sql
 const INSTITUTIONS = [
@@ -71,6 +72,12 @@ export default function FileComplaintPage() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
 
+  // Multilingual Voice Recording State (Prompt 12)
+  const [englishTranslation, setEnglishTranslation] = useState("");
+  const [detectedLang, setDetectedLang] = useState("");
+  const [assignedBureau, setAssignedBureau] = useState("");
+  const [voicePriority, setVoicePriority] = useState("");
+
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<SubmissionResult | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -88,6 +95,35 @@ export default function FileComplaintPage() {
     const text = `${title} ${description}`.toLowerCase();
     return CRITICAL_KEYWORDS.filter((kw) => text.includes(kw));
   }, [title, description]);
+
+  const handleVoiceTranscription = (payload: VoiceTranscriptionPayload) => {
+    // 1. Auto-fill description with original transcribed text
+    setDescription(payload.transcription);
+    setEnglishTranslation(payload.englishText);
+    setDetectedLang(payload.detectedLanguage);
+    setAssignedBureau(payload.assignedBureau);
+    setVoicePriority(payload.priority);
+
+    // 2. Draft smart title if empty
+    if (!title.trim()) {
+      const summary = (payload.englishText || payload.transcription).slice(0, 50).trim();
+      setTitle(`Voice Grievance: ${summary}...`);
+    }
+
+    // 3. Auto-sync primary category matching AICTE Bureau
+    const bureauUpper = payload.assignedBureau.toUpperCase();
+    if (bureauUpper.includes("RAGGING")) {
+      setCategory("Anti-Ragging");
+    } else if (bureauUpper.includes("APPROVAL")) {
+      setCategory("Approval");
+    } else if (bureauUpper.includes("FINANCE")) {
+      setCategory("Finance");
+    } else if (bureauUpper.includes("LEGAL")) {
+      setCategory("Legal");
+    } else {
+      setCategory("Generic");
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -187,6 +223,46 @@ export default function FileComplaintPage() {
                 Submissions are parsed in real time by SentenceTransformers NLP models to determine
                 statutory bureau jurisdiction, priority rating, and dynamic SLA deadlines.
               </p>
+            </div>
+
+            {/* Embedded Voice Recorder (Prompt 12) */}
+            <div className="space-y-4">
+              <VoiceRecorder onTranscriptionComplete={handleVoiceTranscription} />
+
+              {/* Visual Badge Highlighting Detected Language & Auto-Assigned Bureau */}
+              {detectedLang && (
+                <motion.div
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="p-4 rounded-xl bg-gradient-to-r from-indigo-950/40 via-purple-950/40 to-slate-900 border border-indigo-500/30 flex flex-wrap items-center justify-between gap-3 text-xs"
+                >
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-amber-400" />
+                    <span className="text-slate-300 font-medium">Whisper Voice Ingestion:</span>
+                    <span className="px-2.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 font-bold uppercase tracking-wider border border-indigo-500/30">
+                      Language: {detectedLang}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <span className="text-slate-400">Auto-Assigned Cell:</span>
+                    <span className="px-2.5 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 font-semibold border border-cyan-500/30">
+                      {assignedBureau}
+                    </span>
+                    {voicePriority && (
+                      <span
+                        className={`px-2.5 py-0.5 rounded-full font-bold uppercase text-[11px] ${
+                          voicePriority === "CRITICAL"
+                            ? "bg-red-500/20 text-red-400 border border-red-500/30 animate-pulse"
+                            : "bg-blue-500/20 text-blue-300 border border-blue-500/30"
+                        }`}
+                      >
+                        {voicePriority}
+                      </span>
+                    )}
+                  </div>
+                </motion.div>
+              )}
             </div>
 
             {error && (
@@ -349,6 +425,28 @@ export default function FileComplaintPage() {
                   placeholder="Describe the incident in detail, including dates, locations, hostel blocks, or officials involved..."
                   className="w-full px-3.5 py-3 rounded-xl bg-slate-900 border border-slate-800 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-colors leading-relaxed"
                 />
+
+                {/* English Translation View (Prompt 12) */}
+                {englishTranslation && englishTranslation.trim() !== description.trim() && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="p-3.5 rounded-xl bg-slate-800/80 border border-indigo-500/30 space-y-1.5 shadow-md shadow-indigo-500/10"
+                  >
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-semibold text-indigo-300 flex items-center gap-1.5">
+                        <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+                        <span>English Translation (Auto-Generated for Official Review):</span>
+                      </span>
+                      <span className="text-slate-400 text-[11px] font-mono">
+                        NLP SentenceTransformer Input
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-200 leading-relaxed italic bg-slate-900/60 p-2.5 rounded-lg border border-slate-700/50">
+                      "{englishTranslation}"
+                    </p>
+                  </motion.div>
+                )}
 
                 {/* Real-Time Critical Trigger Warning Badge */}
                 {detectedUrgentKeywords.length > 0 && (

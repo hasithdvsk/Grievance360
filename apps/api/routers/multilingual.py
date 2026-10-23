@@ -31,6 +31,14 @@ from services.db_service import (
     save_complaint_and_audit,
 )
 
+BUREAU_CODE_MAP: Dict[str, str] = {
+    "Anti-Ragging Bureau": "BUR_RAGGING",
+    "Approval Bureau": "BUR_APPROVAL",
+    "Finance Bureau": "BUR_FINANCE",
+    "Legal Bureau": "BUR_LEGAL",
+    "Generic Bureau": "BUR_GENERIC",
+}
+
 router = APIRouter(prefix="/api/v1/multilingual", tags=["Multilingual & Voice"])
 
 
@@ -73,7 +81,7 @@ async def submit_voice_grievance(
     audio_file: UploadFile = File(..., description="Audio file in .mp3, .wav, or .m4a format"),
     title: Optional[str] = Form(None, description="Optional grievance subject"),
     complainant_role: str = Form("STUDENT", description="STUDENT, FACULTY, STAFF, PARENTS, CITIZEN"),
-    complainant_email: str = Form(..., description="Valid complainant email address"),
+    complainant_email: Optional[str] = Form(None, description="Optional complainant email address"),
     complainant_phone: Optional[str] = Form(None, description="Contact phone number"),
     institution_aicte_id: Optional[str] = Form(None, description="Target AICTE Institution ID"),
     source_language: Optional[str] = Form("auto", description="Audio language: te, ta, hi, mr, bn, en, or auto"),
@@ -108,8 +116,10 @@ async def submit_voice_grievance(
         if not detected_lang or detected_lang == "auto":
             detected_lang = whisper_lang or detect_language_script(raw_transcription)
 
-        # 5. Translate regional Indian language to English
-        translated_english = translate_to_english(raw_transcription, detected_lang)
+        # 5. Translate regional Indian language to English if not already English
+        translated_english = raw_transcription
+        if detected_lang.lower() not in ["en", "english"]:
+            translated_english = translate_to_english(raw_transcription, detected_lang)
 
         # 6. Compose grievance Title
         final_title = title.strip() if title and title.strip() else f"Voice Grievance ({SUPPORTED_LANGUAGES.get(detected_lang, {}).get('name', 'Indic')}): {translated_english[:50]}..."
@@ -120,11 +130,6 @@ async def submit_voice_grievance(
         assigned_bureau_name = classification["bureau_name"]
         computed_priority = classification["priority"]
 
-        recent_complaints = get_all_complaints_for_duplicate_check()
-        is_duplicate, master_id, similarity_score = check_duplicate_complaint(
-            combined_text, recent_complaints, threshold=0.85
-        )
-
         # 8. Resolve Bureau & Institution
         bureau_id, bureau_name, base_sla_hours = resolve_bureau(assigned_bureau_name)
         institution_id, inst_name, inst_city, inst_state = resolve_institution(
@@ -133,55 +138,74 @@ async def submit_voice_grievance(
 
         # 9. Dynamic SLA Calculation & Status Determination
         sla_deadline = calculate_dynamic_sla(base_sla_hours, computed_priority)
-        complaint_status = "SUBMITTED" if is_duplicate else "AUTO_ASSIGNED"
 
-        # 10. Persist Complaint & Audit Log
-        record = save_complaint_and_audit(
-            title=final_title,
-            description=f"[Voice Transcription ({detected_lang})]: {raw_transcription}\n\n[English Translation]: {translated_english}",
-            complainant_role=complainant_role,
-            complainant_email=complainant_email,
-            complainant_phone=complainant_phone,
-            institution_id=institution_id,
-            institution_name=inst_name,
-            institution_city=inst_city,
-            institution_state=inst_state,
-            bureau_id=bureau_id,
-            bureau_name=bureau_name,
-            priority=computed_priority,
-            status=complaint_status,
-            is_duplicate=is_duplicate,
-            master_complaint_id=master_id,
-            sla_deadline=sla_deadline,
-        )
+        # 10. Persist Complaint & Audit Log if complainant_email is provided
+        record = None
+        is_duplicate = False
+        master_id = None
+        message = ""
 
-        message = (
-            f"Voice grievance transcribed ({detected_lang}) and routed to {bureau_name} "
-            f"with {computed_priority} priority."
-        )
-        if is_duplicate:
-            message += f" Flagged as duplicate of master ticket {master_id}."
+        if complainant_email and complainant_email.strip():
+            recent_complaints = get_all_complaints_for_duplicate_check()
+            is_duplicate, master_id, similarity_score = check_duplicate_complaint(
+                combined_text, recent_complaints, threshold=0.85
+            )
+            complaint_status = "SUBMITTED" if is_duplicate else "AUTO_ASSIGNED"
 
-        return {
-            "status": "success",
-            "tracking_id": record["tracking_id"],
-            "complaint_id": record["complaint_id"],
-            "voice_transcription": raw_transcription,
-            "translated_english": translated_english,
-            "detected_language": detected_lang,
-            "whisper_detected_language": whisper_lang,
-            "whisper_used": whisper_used,
-            "language_name": SUPPORTED_LANGUAGES.get(detected_lang, {}).get("name", "Unknown"),
-            "assigned_bureau": bureau_name,
-            "bureau_id": bureau_id,
+            record = save_complaint_and_audit(
+                title=final_title,
+                description=f"[Voice Transcription ({detected_lang})]: {raw_transcription}\n\n[English Translation]: {translated_english}",
+                complainant_role=complainant_role,
+                complainant_email=complainant_email,
+                complainant_phone=complainant_phone,
+                institution_id=institution_id,
+                institution_name=inst_name,
+                institution_city=inst_city,
+                institution_state=inst_state,
+                bureau_id=bureau_id,
+                bureau_name=bureau_name,
+                priority=computed_priority,
+                status=complaint_status,
+                is_duplicate=is_duplicate,
+                master_complaint_id=master_id,
+                sla_deadline=sla_deadline,
+            )
+
+            message = (
+                f"Voice grievance transcribed ({detected_lang}) and routed to {bureau_name} "
+                f"with {computed_priority} priority."
+            )
+            if is_duplicate:
+                message += f" Flagged as duplicate of master ticket {master_id}."
+
+        bureau_code = BUREAU_CODE_MAP.get(assigned_bureau_name, "BUR_GENERIC")
+
+        # Standard Prompt 12 payload format
+        response_payload = {
+            "transcription": raw_transcription,
+            "english_translation": translated_english,
+            "detected_language": detected_lang.lower(),
+            "assigned_bureau": bureau_code,
             "priority": computed_priority,
-            "status": complaint_status,
-            "sla_deadline": record["sla_deadline"],
-            "is_duplicate": is_duplicate,
-            "master_complaint_id": master_id,
-            "created_at": record["created_at"],
-            "message": message,
+            # Frontend convenience aliases
+            "englishText": translated_english,
+            "detectedLanguage": detected_lang.lower(),
+            "assignedBureau": assigned_bureau_name,
+            "assignedBureauCode": bureau_code,
+            "language_name": SUPPORTED_LANGUAGES.get(detected_lang, {}).get("name", "Unknown"),
+            "status": "success",
+            "whisper_used": whisper_used,
         }
+
+        if record:
+            response_payload["tracking_id"] = record["tracking_id"]
+            response_payload["complaint_id"] = record["complaint_id"]
+            response_payload["sla_deadline"] = record["sla_deadline"]
+            response_payload["is_duplicate"] = is_duplicate
+            response_payload["master_complaint_id"] = master_id
+            response_payload["message"] = message
+
+        return response_payload
 
     finally:
         # Cleanup temporary audio file
