@@ -14,6 +14,7 @@ from pydantic import BaseModel, Field
 from services.multilingual_service import (
     SUPPORTED_LANGUAGES,
     transcribe_voice_note,
+    transcribe_audio_detailed,
     translate_to_english,
     translate_from_english,
     detect_language_script,
@@ -93,15 +94,19 @@ async def submit_voice_grievance(
         temp_audio_path = temp_audio.name
 
     try:
-        # 3. Transcribe audio to plain text
-        raw_transcription = transcribe_voice_note(temp_audio_path, language=source_language)
-        if not raw_transcription or not raw_transcription.strip():
+        # 3. Transcribe audio to plain text via Whisper
+        transcription_res = transcribe_audio_detailed(temp_audio_path, language=source_language)
+        raw_transcription = transcription_res.get("text", "").strip()
+        whisper_lang = transcription_res.get("language")
+        whisper_used = transcription_res.get("whisper_used", False)
+
+        if not raw_transcription:
             raw_transcription = "Voice note audio received. Content logged for nodal review."
 
-        # 4. Detect language if auto
+        # 4. Auto-detect language if not explicitly provided
         detected_lang = source_language
         if not detected_lang or detected_lang == "auto":
-            detected_lang = detect_language_script(raw_transcription)
+            detected_lang = whisper_lang or detect_language_script(raw_transcription)
 
         # 5. Translate regional Indian language to English
         translated_english = translate_to_english(raw_transcription, detected_lang)
@@ -164,6 +169,8 @@ async def submit_voice_grievance(
             "voice_transcription": raw_transcription,
             "translated_english": translated_english,
             "detected_language": detected_lang,
+            "whisper_detected_language": whisper_lang,
+            "whisper_used": whisper_used,
             "language_name": SUPPORTED_LANGUAGES.get(detected_lang, {}).get("name", "Unknown"),
             "assigned_bureau": bureau_name,
             "bureau_id": bureau_id,
