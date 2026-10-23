@@ -9,8 +9,8 @@ This document defines the high-level architecture, data pipeline, and asynchrono
 ```mermaid
 flowchart TD
     subgraph ClientLayer ["Client Layer"]
-        CitizenBrowser["Citizen Web Portal\n(Next.js 14 App Router)"]
-        OfficialPortal["Department Officer Dashboard\n(Recharts & Framer Motion)"]
+        CitizenBrowser["Citizen / Student Web Portal\n(Next.js 14 App Router)"]
+        OfficialPortal["AICTE Officer Dashboard\n(Recharts & Framer Motion)"]
     end
 
     subgraph APILayer ["Backend API Layer"]
@@ -19,14 +19,15 @@ flowchart TD
     end
 
     subgraph ServiceLayer ["Processing & AI Layer"]
-        SentenceTransformers["Semantic NLP Engine\n(Sentence-Transformers / PyTorch)"]
-        CeleryWorker["Celery Distributed Workers\n(Async Task Runner)"]
-        PDFGen["ReportLab PDF Engine\n(Official Resolution Letter)"]
+        SentenceTransformers["Semantic NLP Engine\n(all-MiniLM-L6-v2)"]
+        CeleryWorker["Celery Distributed Workers\n(Redis Broker)"]
+        WatchtowerService["SLA Escalation Watchtower\n(Redis Sorted Set)"]
+        DispatchGateway["Alert Dispatch Gateway\n(SMS & Email Mock)"]
     end
 
     subgraph StorageLayer ["Persistence & Broker Layer"]
-        PostgreSQL[("PostgreSQL 16\n(Schema & Timeline Log)")]
-        RedisBroker[("Redis 7\n(Task Queue & Semantic Cache)")]
+        PostgreSQL[("PostgreSQL 16 + PostGIS\n(WGS 84 Geographies)")]
+        RedisBroker[("Redis 7\n(Broker & 'sla_watchtower' Set)")]
     end
 
     CitizenBrowser -->|REST / JSON| FastAPIServer
@@ -34,19 +35,26 @@ flowchart TD
     FastAPIServer --> CorsAuth
     CorsAuth --> SentenceTransformers
     CorsAuth --> PostgreSQL
-    FastAPIServer -->|Enqueue Async Job| RedisBroker
-    RedisBroker --> CeleryWorker
-    CeleryWorker --> PDFGen
-    CeleryWorker --> PostgreSQL
+    FastAPIServer -->|Register Score = SLA Deadline| RedisBroker
+    RedisBroker -->|Poll Breached Tickets| WatchtowerService
+    WatchtowerService -->|Update Status = ESCALATED| PostgreSQL
+    WatchtowerService -->|Trigger Alert Task| CeleryWorker
+    CeleryWorker --> DispatchGateway
+    DispatchGateway -->|Log Sent Status| PostgreSQL
 ```
 
 ---
 
 ## 🔄 Grievance Lifecycle & AI Pipeline
 
-1. **Intake**: Citizen submits grievance via Next.js form with attachments and location data.
-2. **Semantic Embedding**: FastAPI passes textual description to `sentence-transformers` to generate a 384-dimensional embedding vector.
-3. **Duplicate Detection**: Cosine similarity check against recent complaints in the same ward/category. If similarity > 0.88, flags ticket as a likely duplicate.
-4. **Automated Triage & Routing**: Priority (Low/Medium/High/Critical) and department are predicted based on learned classifier heuristics.
-5. **SLA Timers**: Celery schedules periodic SLA tick events. If resolution exceeds `default_sla_hours`, automated escalation alerts are sent to the department head.
-6. **Resolution & Certificate**: Upon officer sign-off, ReportLab compiles an official digitally timestamped resolution notice PDF.
+1. **Intake**: Citizen/student submits grievance via Next.js form with institution and category.
+2. **Semantic Embedding**: FastAPI passes textual description to `sentence-transformers` (`all-MiniLM-L6-v2`) to generate vector representations.
+3. **Duplicate Detection**: Cosine similarity check against recent complaints. If similarity > 0.85, flags ticket as a likely duplicate.
+4. **Automated Triage & Routing**:
+   - Compares cosine similarity with AICTE Bureau semantic profiles (*Anti-Ragging*, *Approval*, *Finance*, *Legal*, *Generic*).
+   - Detects urgent keywords (`suicide`, `ragging`, `threat`, `violence`, `bribe`) to assign **`CRITICAL`** priority.
+5. **Redis SLA Watchtower**:
+   - Complaint ID is added to Redis sorted set `sla_watchtower` with score equal to epoch timestamp of `sla_deadline`.
+   - Celery worker periodically executes `scan_and_escalate_breached_slas()`.
+   - Tickets past deadline are escalated to `ESCALATED`, priority set to `CRITICAL`, system audit log inserted, and `send_dispatch_alert()` dispatches SMS/email.
+6. **Resolution & Certificate**: Upon officer sign-off, resolution notice and audit trail are finalized.
