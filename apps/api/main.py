@@ -13,7 +13,7 @@ import os
 # Add apps/api directory to sys.path so router/service imports resolve consistently
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from routers import complaints, health, analytics
+from routers import complaints, health, analytics, multilingual
 from services.nlp_engine import NLPEngine
 
 
@@ -65,6 +65,7 @@ app.add_middleware(
 app.include_router(health.router)
 app.include_router(complaints.router)
 app.include_router(analytics.router)
+app.include_router(multilingual.router)
 
 
 @app.get("/", tags=["Root"])
