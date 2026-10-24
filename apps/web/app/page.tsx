@@ -20,6 +20,7 @@ import {
   GraduationCap,
 } from "lucide-react";
 import ComplaintTracker from "@/components/ComplaintTracker";
+import StackedBureauCards from "@/components/StackedBureauCards";
 
 const HERO_STATS = [
   {
@@ -53,41 +54,6 @@ const HERO_STATS = [
     icon: CheckCircle2,
     color: "text-purple-400",
     bg: "bg-purple-500/10",
-  },
-];
-
-const AICTE_BUREAUS = [
-  {
-    name: "Anti-Ragging Bureau",
-    code: "RAGGING",
-    sla: "24h SLA",
-    desc: "Hostel harassment, psychological bullying, late night roll calls, physical intimidation.",
-    icon: ShieldAlert,
-    color: "border-red-500/30 text-red-400",
-  },
-  {
-    name: "Approval Bureau",
-    code: "APPROVAL",
-    sla: "48h SLA",
-    desc: "Seat capacity expansion, unapproved colleges, faculty deficiency, laboratory norms.",
-    icon: Building2,
-    color: "border-blue-500/30 text-blue-400",
-  },
-  {
-    name: "Finance Bureau",
-    code: "FINANCE",
-    sla: "72h SLA",
-    desc: "Pragati & Saksham scholarship delays, tuition fee refunds, capitation fee extortion.",
-    icon: Scale,
-    color: "border-emerald-500/30 text-emerald-400",
-  },
-  {
-    name: "Legal Bureau",
-    code: "LEGAL",
-    sla: "96h SLA",
-    desc: "Court writ petitions, statutory non-compliance, unlawful service terminations.",
-    icon: BrainCircuit,
-    color: "border-indigo-500/30 text-indigo-400",
   },
 ];
 
@@ -186,38 +152,9 @@ export default function HomePage() {
         <ComplaintTracker />
       </section>
 
-      {/* AICTE Bureau Capabilities Showcase */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-        <div className="text-center space-y-2 max-w-2xl mx-auto">
-          <div className="text-xs font-semibold uppercase tracking-wider text-indigo-400">
-            Automated Routing
-          </div>
-          <h2 className="text-2xl sm:text-3xl font-bold text-white">
-            Specialized AICTE Redressal Bureaus
-          </h2>
-          <p className="text-sm text-slate-400">
-            Complaints are embedded in 384-dimensional space and routed with cosine similarity to
-            the statutory officer cell.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-          {AICTE_BUREAUS.map((bureau) => (
-            <div
-              key={bureau.name}
-              className={`glass-panel p-6 rounded-2xl border ${bureau.color} space-y-3 relative overflow-hidden`}
-            >
-              <div className="flex items-center justify-between">
-                <bureau.icon className="w-5 h-5" />
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-800 text-slate-300">
-                  {bureau.sla}
-                </span>
-              </div>
-              <h3 className="font-bold text-base text-white">{bureau.name}</h3>
-              <p className="text-xs text-slate-400 leading-relaxed">{bureau.desc}</p>
-            </div>
-          ))}
-        </div>
+      {/* AICTE Bureau Stacked Card Interaction Engine (Prompt 20) */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <StackedBureauCards />
       </section>
 
       {/* Technical Highlights */}
