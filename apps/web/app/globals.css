@@ -73,3 +73,18 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #334155;
 }
+
+/* Custom Interactive Cursor Rules for Desktop */
+@media (pointer: fine) {
+  html,
+  body,
+  button,
+  a,
+  input,
+  textarea,
+  select,
+  [role="button"],
+  [data-cursor="pointer"] {
+    cursor: none !important;
+  }
+}
