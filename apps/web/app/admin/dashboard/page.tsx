@@ -400,24 +400,28 @@ export default function AdminDashboardPage() {
                   <td className="py-3 text-zinc-300">
                     {region.city}, {region.state}
                   </td>
-                  <td className="py-3 font-mono text-[11px] text-zinc-400">
+                  <td className="py-3 font-mono text-[11px] text-cyan-400/80">
                     {region.latitude.toFixed(4)}°N, {region.longitude.toFixed(4)}°E
                   </td>
                   <td className="py-3">
-                    <span className="font-mono text-sm font-bold text-white">
+                    <span className="font-mono text-sm font-bold text-emerald-400">
                       {region.compliance_score}%
                     </span>
                   </td>
-                  <td className="py-3 font-mono text-sm font-semibold text-zinc-300">
+                  <td className="py-3 font-mono text-sm font-bold text-sky-400">
                     {region.total_complaints}
                   </td>
                   <td className="py-3">
-                    <span className="font-mono text-sm font-semibold text-zinc-300">
+                    <span className={`font-mono text-sm font-bold ${
+                      region.unresolved_complaints > 0 ? "text-amber-400" : "text-zinc-500"
+                    }`}>
                       {region.unresolved_complaints}
                     </span>
                   </td>
                   <td className="py-3">
-                    <span className="font-mono text-sm font-bold text-zinc-100">
+                    <span className={`font-mono text-sm font-bold ${
+                      region.critical_count > 0 ? "text-red-400" : "text-zinc-500"
+                    }`}>
                       {region.critical_count}
                     </span>
                   </td>
