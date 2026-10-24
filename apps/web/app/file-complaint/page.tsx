@@ -234,27 +234,27 @@ export default function FileComplaintPage() {
                 <motion.div
                   initial={{ opacity: 0, y: -8 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="p-4 rounded-xl bg-gradient-to-r from-indigo-950/40 via-purple-950/40 to-slate-900 border border-indigo-500/30 flex flex-wrap items-center justify-between gap-3 text-xs"
+                  className="p-4 rounded-xl bg-zinc-900/90 border border-zinc-800 flex flex-wrap items-center justify-between gap-3 text-xs"
                 >
                   <div className="flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-amber-400" />
-                    <span className="text-slate-300 font-medium">Whisper Voice Ingestion:</span>
-                    <span className="px-2.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 font-bold uppercase tracking-wider border border-indigo-500/30">
+                    <Sparkles className="w-4 h-4 text-white" />
+                    <span className="text-zinc-300 font-medium">Whisper Voice Ingestion:</span>
+                    <span className="px-2.5 py-0.5 rounded-full bg-zinc-800 text-zinc-200 font-bold uppercase tracking-wider border border-zinc-700">
                       Language: {detectedLang}
                     </span>
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <span className="text-slate-400">Auto-Assigned Cell:</span>
-                    <span className="px-2.5 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 font-semibold border border-cyan-500/30">
+                    <span className="text-zinc-400">Auto-Assigned Cell:</span>
+                    <span className="px-2.5 py-0.5 rounded-full bg-zinc-800 text-zinc-200 font-semibold border border-zinc-700">
                       {assignedBureau}
                     </span>
                     {voicePriority && (
                       <span
                         className={`px-2.5 py-0.5 rounded-full font-bold uppercase text-[11px] ${
                           voicePriority === "CRITICAL"
-                            ? "bg-red-500/20 text-red-400 border border-red-500/30 animate-pulse"
-                            : "bg-blue-500/20 text-blue-300 border border-blue-500/30"
+                            ? "bg-white/10 text-white border border-white/30 animate-pulse"
+                            : "bg-zinc-800 text-zinc-300 border border-zinc-700"
                         }`}
                       >
                         {voicePriority}
@@ -468,16 +468,16 @@ export default function FileComplaintPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-500 font-bold text-white shadow-xl shadow-blue-600/25 transition-all hover:scale-[1.01] disabled:opacity-50"
+                className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-white hover:bg-zinc-200 font-bold text-black shadow-xl shadow-white/10 transition-all hover:scale-[1.01] disabled:opacity-50 border border-white"
               >
                 {loading ? (
                   <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <Loader2 className="w-5 h-5 animate-spin text-black" />
                     <span>Running Sentence-Transformers NLP Triage...</span>
                   </>
                 ) : (
                   <>
-                    <FilePlus2 className="w-5 h-5" />
+                    <FilePlus2 className="w-5 h-5 text-black" />
                     <span>Submit Grievance to AICTE Cell</span>
                   </>
                 )}
@@ -561,10 +561,10 @@ export default function FileComplaintPage() {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
               <Link
                 href="/#tracker"
-                className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 font-semibold text-white shadow-lg shadow-blue-600/25 transition-all"
+                className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-white hover:bg-zinc-200 font-bold text-black shadow-lg shadow-white/10 transition-all border border-white"
               >
                 <span>Track this Ticket on Dashboard</span>
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-4 h-4 text-black" />
               </Link>
               <button
                 onClick={() => {

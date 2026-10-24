@@ -8,7 +8,7 @@ import Logo from "./Logo";
 
 export const Navbar: React.FC = () => {
   return (
-    <header className="sticky top-0 z-50 glass-panel border-b border-slate-800/80 backdrop-blur-xl">
+    <header className="sticky top-0 z-50 glass-panel border-b border-zinc-800/80 backdrop-blur-xl bg-black/75">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Brand Logo with micro-interactions */}
         <Link href="/" className="inline-block" data-cursor="pointer">
@@ -26,27 +26,27 @@ export const Navbar: React.FC = () => {
           <Link
             href="/#tracker"
             data-cursor="pointer"
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-medium text-slate-300 hover:text-cyan-400 rounded-lg hover:bg-slate-800/60 border border-transparent hover:border-cyan-500/20 transition-all"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-medium text-zinc-300 hover:text-white rounded-lg hover:bg-zinc-900/80 border border-transparent hover:border-zinc-700/60 transition-all"
           >
-            <Search className="w-4 h-4 text-cyan-400" />
+            <Search className="w-4 h-4 text-zinc-400" />
             <span className="hidden sm:inline">Track Ticket</span>
           </Link>
 
           <Link
             href="/admin/dashboard"
             data-cursor="pointer"
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-medium text-slate-300 hover:text-emerald-400 rounded-lg hover:bg-slate-800/60 border border-transparent hover:border-emerald-500/20 transition-all"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-medium text-zinc-300 hover:text-white rounded-lg hover:bg-zinc-900/80 border border-transparent hover:border-zinc-700/60 transition-all"
           >
-            <Activity className="w-4 h-4 text-emerald-400" />
+            <Activity className="w-4 h-4 text-zinc-400" />
             <span className="hidden sm:inline">Admin Analytics</span>
           </Link>
 
           <Link
             href="/file-complaint"
             data-cursor="pointer"
-            className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs sm:text-sm font-semibold text-white bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 rounded-lg shadow-lg shadow-cyan-600/20 border border-cyan-400/30 transition-all hover:scale-[1.03]"
+            className="flex items-center gap-1.5 px-4 py-1.5 text-xs sm:text-sm font-bold text-black bg-white hover:bg-zinc-200 rounded-lg shadow-lg shadow-white/10 border border-white transition-all hover:scale-[1.03] active:scale-[0.98]"
           >
-            <FilePlus2 className="w-4 h-4" />
+            <FilePlus2 className="w-4 h-4 text-black" />
             <span>File Grievance</span>
           </Link>
         </nav>

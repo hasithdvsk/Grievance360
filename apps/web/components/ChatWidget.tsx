@@ -181,15 +181,15 @@ export default function ChatWidget() {
             whileTap={{ scale: 0.95 }}
             onClick={() => setIsOpen(true)}
             aria-label="Open AICTE Grievance360 Assistant"
-            className="group relative flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-500 text-white shadow-2xl shadow-indigo-600/40 hover:shadow-indigo-500/60 transition-all border border-indigo-400/30"
+            className="group relative flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-black shadow-2xl shadow-white/20 hover:bg-zinc-200 transition-all border border-white"
           >
             {/* Pulsing online status indicator ring */}
             <span className="absolute -top-1 -right-1 flex h-4 w-4">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-4 w-4 bg-emerald-500 border-2 border-slate-900 shadow-md" />
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75" />
+              <span className="relative inline-flex rounded-full h-4 w-4 bg-white border-2 border-black shadow-md" />
             </span>
 
-            <Bot className="h-7 w-7 transition-transform group-hover:rotate-12 duration-200" />
+            <Bot className="h-7 w-7 text-black transition-transform group-hover:rotate-12 duration-200" />
           </motion.button>
         )}
       </AnimatePresence>
@@ -202,22 +202,22 @@ export default function ChatWidget() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="w-80 sm:w-96 h-[520px] max-h-[85vh] flex flex-col rounded-3xl border border-slate-700/80 bg-slate-900/95 backdrop-blur-2xl shadow-2xl shadow-black/80 overflow-hidden"
+            className="w-80 sm:w-96 h-[520px] max-h-[85vh] flex flex-col rounded-3xl border border-zinc-800 bg-[#09090b]/98 backdrop-blur-2xl shadow-2xl shadow-black/90 overflow-hidden"
           >
             {/* Header */}
-            <div className="border-b border-slate-800 bg-gradient-to-r from-slate-900 via-indigo-950/40 to-slate-900 p-4 shrink-0">
+            <div className="border-b border-zinc-800 bg-zinc-950 p-4 shrink-0">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2.5">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/25">
-                    <Bot className="h-5 w-5" />
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-black shadow-md border border-white/20">
+                    <Bot className="h-5 w-5 text-black" />
                   </div>
                   <div>
                     <h3 className="text-xs font-bold text-white tracking-wide">
                       Grievance360 Assistant
                     </h3>
                     <div className="flex items-center space-x-1.5">
-                      <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-                      <span className="text-[10px] font-semibold text-emerald-400">
+                      <span className="h-2 w-2 rounded-full bg-white animate-pulse" />
+                      <span className="text-[10px] font-semibold text-zinc-300">
                         AI & Messenger Active
                       </span>
                     </div>
@@ -228,7 +228,7 @@ export default function ChatWidget() {
                   <button
                     type="button"
                     onClick={() => setIsOpen(false)}
-                    className="flex h-7 w-7 items-center justify-center rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/80 transition-colors"
+                    className="flex h-7 w-7 items-center justify-center rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"
                     aria-label="Close Chat"
                   >
                     <X className="h-4 w-4" />
@@ -237,14 +237,14 @@ export default function ChatWidget() {
               </div>
 
               {/* Channel Tabs */}
-              <div className="mt-3 grid grid-cols-3 gap-1 rounded-xl bg-slate-950/80 p-1 border border-slate-800/80">
+              <div className="mt-3 grid grid-cols-3 gap-1 rounded-xl bg-black p-1 border border-zinc-800">
                 <button
                   type="button"
                   onClick={() => setActiveTab("chat")}
                   className={`flex items-center justify-center space-x-1 py-1 rounded-lg text-[11px] font-medium transition-all ${
                     activeTab === "chat"
-                      ? "bg-blue-600 text-white shadow-sm font-semibold"
-                      : "text-slate-400 hover:text-slate-200"
+                      ? "bg-white text-black shadow-sm font-bold"
+                      : "text-zinc-400 hover:text-white"
                   }`}
                 >
                   <Sparkles className="h-3 w-3" />
@@ -335,15 +335,15 @@ export default function ChatWidget() {
                       <div
                         className={`max-w-[85%] rounded-2xl p-3 text-xs leading-relaxed shadow-md ${
                           msg.sender === "user"
-                            ? "bg-blue-600 text-white rounded-br-xs"
-                            : "bg-slate-800/95 text-slate-200 border border-slate-700/60 rounded-bl-xs"
+                            ? "bg-white text-black font-semibold rounded-br-xs"
+                            : "bg-zinc-900 text-zinc-200 border border-zinc-800 rounded-bl-xs"
                         }`}
                       >
                         <div className="whitespace-pre-wrap break-words">
                           {msg.text}
                         </div>
                       </div>
-                      <span className="mt-1 px-1 text-[9px] text-slate-500 font-mono">
+                      <span className="mt-1 px-1 text-[9px] text-zinc-500 font-mono">
                         {msg.time}
                       </span>
                     </motion.div>
@@ -354,15 +354,15 @@ export default function ChatWidget() {
                     <motion.div
                       initial={{ opacity: 0, y: 5 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="flex items-center space-x-1.5 rounded-2xl rounded-bl-xs bg-slate-800/80 border border-slate-700/60 p-3 max-w-[70px]"
+                      className="flex items-center space-x-1.5 rounded-2xl rounded-bl-xs bg-zinc-900 border border-zinc-800 p-3 max-w-[70px]"
                     >
-                      <span className="h-1.5 w-1.5 rounded-full bg-blue-400 animate-bounce" />
+                      <span className="h-1.5 w-1.5 rounded-full bg-white animate-bounce" />
                       <span
-                        className="h-1.5 w-1.5 rounded-full bg-indigo-400 animate-bounce"
+                        className="h-1.5 w-1.5 rounded-full bg-zinc-300 animate-bounce"
                         style={{ animationDelay: "0.2s" }}
                       />
                       <span
-                        className="h-1.5 w-1.5 rounded-full bg-cyan-400 animate-bounce"
+                        className="h-1.5 w-1.5 rounded-full bg-zinc-500 animate-bounce"
                         style={{ animationDelay: "0.4s" }}
                       />
                     </motion.div>
@@ -372,8 +372,8 @@ export default function ChatWidget() {
                 </div>
 
                 {/* Input Bar */}
-                <div className="p-3 border-t border-slate-800/80 bg-slate-950/60 shrink-0">
-                  <div className="flex items-center space-x-2 rounded-2xl border border-slate-700/80 bg-slate-900/90 px-3 py-1.5 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 transition-all">
+                <div className="p-3 border-t border-zinc-800 bg-zinc-950/80 shrink-0">
+                  <div className="flex items-center space-x-2 rounded-2xl border border-zinc-700 bg-zinc-900 px-3 py-1.5 focus-within:border-white focus-within:ring-1 focus-within:ring-white/20 transition-all">
                     <input
                       ref={inputRef}
                       type="text"
@@ -382,15 +382,15 @@ export default function ChatWidget() {
                       onKeyDown={handleKeyDown}
                       placeholder="Type STATUS <ID> or FILE <Desc>..."
                       disabled={isLoading}
-                      className="flex-1 bg-transparent text-xs text-white placeholder-slate-500 focus:outline-none"
+                      className="flex-1 bg-transparent text-xs text-white placeholder-zinc-500 focus:outline-none"
                     />
                     <button
                       type="button"
                       onClick={() => handleSendMessage()}
                       disabled={!inputValue.trim() || isLoading}
-                      className="flex h-7 w-7 items-center justify-center rounded-xl bg-blue-600 hover:bg-blue-500 text-white transition-colors disabled:opacity-40"
+                      className="flex h-7 w-7 items-center justify-center rounded-xl bg-white hover:bg-zinc-200 text-black transition-colors disabled:opacity-40"
                     >
-                      <Send className="h-3.5 w-3.5" />
+                      <Send className="h-3.5 w-3.5 text-black" />
                     </button>
                   </div>
                 </div>

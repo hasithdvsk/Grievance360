@@ -13,6 +13,12 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        obsidian: {
+          950: '#050505',
+          900: '#0a0a0c',
+          850: '#111114',
+          800: '#18181b',
+        },
         slate: {
           950: '#020617',
         },
@@ -37,6 +43,10 @@ module.exports = {
         },
       },
       boxShadow: {
+        'mono-glow': '0 0 35px -5px rgba(255,255,255,0.12)',
+        'mono-card': '0 4px 20px -2px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.08)',
+        'mono-card-hover': '0 12px 30px -4px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.22)',
+        'mono-inset': 'inset 0 1px 1px 0 rgba(255,255,255,0.1)',
         'emboss': '4px 4px 10px rgba(0,0,0,0.15), -4px -4px 10px rgba(255,255,255,0.6)',
         'deboss': 'inset 3px 3px 6px rgba(0,0,0,0.25), inset -3px -3px 6px rgba(255,255,255,0.4)',
         'deboss-deep': 'inset 5px 5px 12px rgba(0,0,0,0.35), inset -4px -4px 10px rgba(255,255,255,0.2)',
@@ -45,8 +55,23 @@ module.exports = {
         'deboss-dark': 'inset 3px 3px 6px rgba(0,0,0,0.8), inset -2px -2px 5px rgba(255,255,255,0.05)',
         'deboss-deep-dark': 'inset 5px 5px 14px rgba(0,0,0,0.9), inset -3px -3px 8px rgba(255,255,255,0.04)',
       },
+      animation: {
+        'shimmer': 'shimmer 2.5s infinite linear',
+        'float-slow': 'float 6s ease-in-out infinite',
+      },
+      keyframes: {
+        shimmer: {
+          '0%': { backgroundPosition: '-200% 0' },
+          '100%': { backgroundPosition: '200% 0' },
+        },
+        float: {
+          '0%, 100%': { transform: 'translateY(0px)' },
+          '50%': { transform: 'translateY(-6px)' },
+        },
+      },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+        'mono-grid': 'linear-gradient(to right, rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.04) 1px, transparent 1px)',
       },
     },
   },

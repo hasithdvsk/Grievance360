@@ -169,16 +169,16 @@ export default function ComplaintTracker() {
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6" id="tracker">
       {/* Search Header Container */}
-      <div className="glass-panel rounded-2xl p-6 sm:p-8 space-y-4 glow-blue">
-        <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-blue-400">
-          <Search className="w-4 h-4" />
+      <div className="glass-panel rounded-2xl p-6 sm:p-8 space-y-4 border border-zinc-800/80">
+        <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-zinc-400">
+          <Search className="w-4 h-4 text-zinc-300" />
           <span>Real-time AICTE Grievance Tracking Engine</span>
         </div>
         <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
           Track Your Grievance Status
         </h2>
-        <p className="text-sm text-slate-400">
-          Enter your unique Grievance Tracking ID (e.g. <code className="text-blue-300">GRV-2026-00001</code>)
+        <p className="text-sm text-zinc-400">
+          Enter your unique Grievance Tracking ID (e.g. <code className="text-zinc-200 font-mono">GRV-2026-00001</code>)
           to monitor bureau dispatch, dynamic SLA countdown, and live audit actions.
         </p>
 
@@ -191,28 +191,28 @@ export default function ComplaintTracker() {
           className="flex flex-col sm:flex-row gap-3 pt-2"
         >
           <div className="relative flex-1">
-            <Search className="w-5 h-5 absolute left-4 top-3.5 text-slate-400" />
+            <Search className="w-5 h-5 absolute left-4 top-3.5 text-zinc-500" />
             <input
               type="text"
               value={ticketInput}
               onChange={(e) => setTicketInput(e.target.value)}
               placeholder="e.g. GRV-2026-00001"
-              className="w-full pl-12 pr-4 py-3 text-sm sm:text-base rounded-xl bg-slate-900/90 border border-slate-700/80 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all font-mono"
+              className="w-full pl-12 pr-4 py-3 text-sm sm:text-base rounded-xl bg-zinc-900 border border-zinc-700/80 text-white placeholder-zinc-500 focus:outline-none focus:border-white focus:ring-2 focus:ring-white/20 transition-all font-mono"
             />
           </div>
           <button
             type="submit"
             disabled={loading}
-            className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 font-semibold text-white shadow-lg shadow-blue-600/25 transition-all disabled:opacity-50"
+            className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-white hover:bg-zinc-200 font-bold text-black shadow-lg shadow-white/10 border border-white transition-all disabled:opacity-50"
           >
             {loading ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <Loader2 className="w-4 h-4 animate-spin text-black" />
                 <span>Searching...</span>
               </>
             ) : (
               <>
-                <Search className="w-4 h-4" />
+                <Search className="w-4 h-4 text-black" />
                 <span>Track Status</span>
               </>
             )}
@@ -220,7 +220,7 @@ export default function ComplaintTracker() {
         </form>
 
         {/* Quick Sample Buttons */}
-        <div className="flex flex-wrap items-center gap-2 pt-1 text-xs text-slate-400">
+        <div className="flex flex-wrap items-center gap-2 pt-1 text-xs text-zinc-400">
           <span>Try quick sample:</span>
           <button
             type="button"
@@ -228,7 +228,7 @@ export default function ComplaintTracker() {
               setTicketInput("GRV-2026-00001");
               handleSearch("GRV-2026-00001");
             }}
-            className="px-2.5 py-1 rounded-md bg-slate-800/80 hover:bg-slate-700 text-blue-400 border border-slate-700 transition-colors font-mono"
+            className="px-2.5 py-1 rounded-md bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700 transition-colors font-mono"
           >
             GRV-2026-00001 (Ragging / Critical)
           </button>
@@ -289,18 +289,18 @@ export default function ComplaintTracker() {
               {/* Dynamic Priority Status Badge */}
               <div className="flex items-center gap-2">
                 {complaint.priority === "CRITICAL" ? (
-                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-red-500/15 border border-red-500/30 text-red-400 text-xs font-bold tracking-wide animate-pulse">
-                    <ShieldAlert className="w-4 h-4 text-red-400" />
+                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-white/30 text-white text-xs font-bold tracking-wide animate-pulse">
+                    <ShieldAlert className="w-4 h-4 text-white" />
                     <span>CRITICAL PRIORITY</span>
                   </div>
                 ) : complaint.priority === "HIGH" || complaint.priority === "MEDIUM" ? (
-                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-400 text-xs font-bold tracking-wide">
-                    <AlertTriangle className="w-4 h-4 text-amber-400" />
+                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-zinc-800/80 border border-zinc-700 text-zinc-200 text-xs font-bold tracking-wide">
+                    <AlertTriangle className="w-4 h-4 text-zinc-300" />
                     <span>{complaint.priority} PRIORITY</span>
                   </div>
                 ) : (
-                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/15 border border-blue-500/30 text-blue-400 text-xs font-bold tracking-wide">
-                    <CheckCircle2 className="w-4 h-4 text-blue-400" />
+                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-400 text-xs font-bold tracking-wide">
+                    <CheckCircle2 className="w-4 h-4 text-zinc-400" />
                     <span>{complaint.priority} PRIORITY</span>
                   </div>
                 )}
@@ -309,7 +309,7 @@ export default function ComplaintTracker() {
 
             {/* Step-by-Step Progress Visualizer */}
             <div className="space-y-4">
-              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+              <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
                 Resolution Lifecycle Progress
               </span>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 relative">
@@ -323,20 +323,20 @@ export default function ComplaintTracker() {
                       key={step.key}
                       className={`relative p-4 rounded-xl border transition-all ${
                         isCurrent
-                          ? "bg-blue-600/15 border-blue-500/40 shadow-lg shadow-blue-500/10"
+                          ? "bg-white/10 border-white/40 shadow-lg shadow-white/5"
                           : isCompleted
-                          ? "bg-slate-900/80 border-slate-700/80"
-                          : "bg-slate-950/40 border-slate-800/60 opacity-60"
+                          ? "bg-zinc-900/80 border-zinc-700/80"
+                          : "bg-zinc-950/40 border-zinc-800/60 opacity-60"
                       }`}
                     >
                       <div className="flex items-center gap-2 mb-2">
                         <div
                           className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
                             isCurrent
-                              ? "bg-blue-600 text-white"
+                              ? "bg-white text-black"
                               : isCompleted
-                              ? "bg-emerald-500 text-white"
-                              : "bg-slate-800 text-slate-400"
+                              ? "bg-zinc-700 text-white"
+                              : "bg-zinc-900 text-zinc-500"
                           }`}
                         >
                           {isCompleted ? <Check className="w-3.5 h-3.5" /> : idx + 1}
@@ -344,16 +344,16 @@ export default function ComplaintTracker() {
                         <span
                           className={`text-xs font-bold ${
                             isCurrent
-                              ? "text-blue-400"
+                              ? "text-white"
                               : isCompleted
-                              ? "text-emerald-400"
-                              : "text-slate-400"
+                              ? "text-zinc-200"
+                              : "text-zinc-500"
                           }`}
                         >
                           {step.label}
                         </span>
                       </div>
-                      <p className="text-[11px] text-slate-400 leading-snug">{step.desc}</p>
+                      <p className="text-[11px] text-zinc-400 leading-snug">{step.desc}</p>
                     </div>
                   );
                 })}
@@ -361,29 +361,29 @@ export default function ComplaintTracker() {
             </div>
 
             {/* Complaint Header & Core Metadata */}
-            <div className="space-y-3 p-5 rounded-xl bg-slate-900/60 border border-slate-800">
+            <div className="space-y-3 p-5 rounded-xl bg-zinc-900/60 border border-zinc-800">
               <h3 className="text-lg sm:text-xl font-bold text-white leading-snug">
                 {complaint.title}
               </h3>
-              <p className="text-sm text-slate-300 leading-relaxed">{complaint.description}</p>
+              <p className="text-sm text-zinc-300 leading-relaxed">{complaint.description}</p>
             </div>
 
             {/* Quick Metadata Details Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
-              <div className="p-4 rounded-xl bg-slate-900/40 border border-slate-800/80 space-y-1">
-                <div className="flex items-center gap-1.5 text-slate-400">
-                  <Building2 className="w-3.5 h-3.5 text-blue-400" />
+              <div className="p-4 rounded-xl bg-zinc-900/40 border border-zinc-800/80 space-y-1">
+                <div className="flex items-center gap-1.5 text-zinc-400">
+                  <Building2 className="w-3.5 h-3.5 text-zinc-300" />
                   <span>Assigned AICTE Bureau</span>
                 </div>
-                <div className="font-semibold text-slate-200 text-sm">{complaint.bureau_name}</div>
+                <div className="font-semibold text-zinc-200 text-sm">{complaint.bureau_name}</div>
               </div>
 
-              <div className="p-4 rounded-xl bg-slate-900/40 border border-slate-800/80 space-y-1">
-                <div className="flex items-center gap-1.5 text-slate-400">
-                  <Clock className="w-3.5 h-3.5 text-indigo-400" />
+              <div className="p-4 rounded-xl bg-zinc-900/40 border border-zinc-800/80 space-y-1">
+                <div className="flex items-center gap-1.5 text-zinc-400">
+                  <Clock className="w-3.5 h-3.5 text-zinc-300" />
                   <span>Dynamic SLA Deadline</span>
                 </div>
-                <div className="font-semibold text-slate-200 text-sm">
+                <div className="font-semibold text-zinc-200 text-sm">
                   {complaint.sla_deadline
                     ? new Date(complaint.sla_deadline).toLocaleString("en-US", {
                         month: "short",
@@ -395,12 +395,12 @@ export default function ComplaintTracker() {
                 </div>
               </div>
 
-              <div className="p-4 rounded-xl bg-slate-900/40 border border-slate-800/80 space-y-1">
-                <div className="flex items-center gap-1.5 text-slate-400">
-                  <Building2 className="w-3.5 h-3.5 text-emerald-400" />
+              <div className="p-4 rounded-xl bg-zinc-900/40 border border-zinc-800/80 space-y-1">
+                <div className="flex items-center gap-1.5 text-zinc-400">
+                  <Building2 className="w-3.5 h-3.5 text-zinc-300" />
                   <span>Educational Institution</span>
                 </div>
-                <div className="font-semibold text-slate-200 text-sm truncate">
+                <div className="font-semibold text-zinc-200 text-sm truncate">
                   {complaint.institution_name || "Central AICTE Registry"}
                 </div>
               </div>
@@ -408,19 +408,19 @@ export default function ComplaintTracker() {
 
             {/* Audit Trail Timeline */}
             <div className="space-y-4 pt-2">
-              <div className="flex items-center gap-2 text-xs font-semibold text-slate-300 uppercase tracking-wider">
-                <History className="w-4 h-4 text-blue-400" />
+              <div className="flex items-center gap-2 text-xs font-semibold text-zinc-300 uppercase tracking-wider">
+                <History className="w-4 h-4 text-zinc-300" />
                 <span>Chronological Audit Trail & Officer Actions</span>
               </div>
 
-              <div className="space-y-3 relative pl-4 border-l-2 border-slate-800">
+              <div className="space-y-3 relative pl-4 border-l-2 border-zinc-800">
                 {complaint.timeline && complaint.timeline.length > 0 ? (
                   complaint.timeline.map((log) => (
                     <div key={log.log_id} className="relative space-y-1 text-xs">
                       {/* Timeline Dot */}
-                      <div className="w-2.5 h-2.5 rounded-full bg-blue-500 absolute -left-[21px] top-1.5 ring-4 ring-slate-950" />
-                      <div className="flex items-center justify-between text-slate-400">
-                        <span className="font-semibold text-blue-300 uppercase tracking-wide">
+                      <div className="w-2.5 h-2.5 rounded-full bg-white absolute -left-[21px] top-1.5 ring-4 ring-black" />
+                      <div className="flex items-center justify-between text-zinc-400">
+                        <span className="font-semibold text-zinc-200 uppercase tracking-wide">
                           {log.action_taken.replace(/_/g, " ")}
                         </span>
                         <span>
@@ -432,16 +432,16 @@ export default function ComplaintTracker() {
                           })}
                         </span>
                       </div>
-                      <div className="p-3 rounded-lg bg-slate-900/70 border border-slate-800/80 text-slate-300">
+                      <div className="p-3 rounded-lg bg-zinc-900/70 border border-zinc-800/80 text-zinc-300">
                         {log.officer_remarks || "Action logged and verified by system."}
                       </div>
-                      <div className="text-[10px] text-slate-500">
-                        Actor: <code className="text-slate-400">{log.actor_id || "SYSTEM"}</code>
+                      <div className="text-[10px] text-zinc-500">
+                        Actor: <code className="text-zinc-400">{log.actor_id || "SYSTEM"}</code>
                       </div>
                     </div>
                   ))
                 ) : (
-                  <p className="text-xs text-slate-500">No additional audit actions recorded yet.</p>
+                  <p className="text-xs text-zinc-500">No additional audit actions recorded yet.</p>
                 )}
               </div>
             </div>

@@ -121,19 +121,19 @@ export const CustomCursor: React.FC = () => {
           scaleY: isScrolling ? 1.2 : ringScale,
           scaleX: isScrolling ? 0.8 : ringScale,
           borderColor: isTextTarget
-            ? "rgba(6, 182, 212, 0.65)"
+            ? "rgba(255, 255, 255, 0.55)"
             : isHovered
-            ? "rgba(6, 182, 212, 0.8)"
-            : "rgba(99, 102, 241, 0.4)",
+            ? "rgba(255, 255, 255, 0.9)"
+            : "rgba(255, 255, 255, 0.28)",
           // Ultra-translucent background so all underlying text/letters remain 100% visible
           backgroundColor: isTextTarget
-            ? "rgba(6, 182, 212, 0.02)"
+            ? "rgba(255, 255, 255, 0.02)"
             : isHovered
-            ? "rgba(6, 182, 212, 0.06)"
-            : "rgba(99, 102, 241, 0.03)",
+            ? "rgba(255, 255, 255, 0.08)"
+            : "rgba(255, 255, 255, 0.03)",
           boxShadow: isHovered
-            ? "0 0 16px 1px rgba(6, 182, 212, 0.35)"
-            : "0 0 10px rgba(99, 102, 241, 0.2)",
+            ? "0 0 18px 2px rgba(255, 255, 255, 0.35)"
+            : "0 0 10px rgba(255, 255, 255, 0.15)",
         }}
         transition={{
           type: "spring",
@@ -143,7 +143,7 @@ export const CustomCursor: React.FC = () => {
         className="w-8 h-8 rounded-full border pointer-events-none transition-colors duration-150"
       />
 
-      {/* Inner Dot: Sharp, delicate glowing cyan pointer */}
+      {/* Inner Dot: Sharp, crisp glowing pure white pointer */}
       <motion.div
         style={{
           x: dotX,
@@ -156,7 +156,7 @@ export const CustomCursor: React.FC = () => {
           opacity: isVisible ? 1 : 0,
         }}
         transition={{ type: "spring", stiffness: 750, damping: 30 }}
-        className="w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(6,182,212,0.85)] pointer-events-none"
+        className="w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_10px_rgba(255,255,255,0.95)] pointer-events-none"
       />
     </div>
   );

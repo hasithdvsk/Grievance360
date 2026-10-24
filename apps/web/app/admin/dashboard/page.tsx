@@ -89,10 +89,10 @@ const DEFAULT_ANALYTICS: AnalyticsData = {
     { bureau: "Generic", received: 56, resolved: 52, pending: 4, sla_compliance: 97.8 },
   ],
   priority_distribution: [
-    { name: "Critical", value: 14, color: "#ef4444" },
-    { name: "High", value: 48, color: "#f59e0b" },
-    { name: "Medium", value: 126, color: "#3b82f6" },
-    { name: "Low", value: 57, color: "#10b981" },
+    { name: "Critical", value: 14, color: "#ffffff" },
+    { name: "High", value: 48, color: "#d4d4d8" },
+    { name: "Medium", value: 126, color: "#71717a" },
+    { name: "Low", value: 57, color: "#3f3f46" },
   ],
   top_hotspot_regions: [
     { institution_id: "inst-1", name: "IIT Delhi", city: "New Delhi", state: "Delhi", latitude: 28.545, longitude: 77.1926, compliance_score: 98.5, total_complaints: 4, unresolved_complaints: 2, critical_count: 1 },
@@ -190,16 +190,16 @@ export default function AdminDashboardPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-800 pb-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-zinc-800 pb-6">
         <div>
-          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-blue-400">
-            <Sparkles className="w-4 h-4" />
+          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-zinc-400">
+            <Sparkles className="w-4 h-4 text-white" />
             <span>AICTE Executive Intelligence Center</span>
           </div>
           <h1 className="text-3xl font-extrabold tracking-tight text-white mt-1">
             Grievance Redressal Monitoring Dashboard
           </h1>
-          <p className="text-sm text-slate-400 mt-1">
+          <p className="text-sm text-zinc-400 mt-1">
             Real-time geospatial PostGIS hotspots, bureau intake velocity, and ReportLab ATR compliance certificates.
           </p>
         </div>
@@ -207,7 +207,7 @@ export default function AdminDashboardPage() {
         <button
           onClick={fetchAnalytics}
           disabled={loading}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl glass-panel text-slate-300 hover:text-white text-xs font-semibold border border-slate-700/80 transition-all hover:scale-105"
+          className="flex items-center gap-2 px-4 py-2 rounded-xl glass-panel text-zinc-300 hover:text-white text-xs font-semibold border border-zinc-700/80 hover:border-zinc-500 transition-all hover:scale-105"
         >
           <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
           <span>Refresh Metrics</span>
@@ -222,32 +222,32 @@ export default function AdminDashboardPage() {
             value: data.summary.total_grievances,
             subtitle: `${data.summary.total_resolved} resolved (${data.summary.overall_resolution_rate}%)`,
             icon: FileText,
-            color: "text-blue-400",
-            bg: "bg-blue-500/10",
+            color: "text-white",
+            bg: "bg-white/10 border border-white/20",
           },
           {
             title: "Average Resolution SLA",
             value: `${data.summary.avg_resolution_hours} hrs`,
             subtitle: "4.8x faster than 72h manual baseline",
             icon: Clock,
-            color: "text-emerald-400",
-            bg: "bg-emerald-500/10",
+            color: "text-zinc-200",
+            bg: "bg-zinc-800/80 border border-zinc-700/50",
           },
           {
             title: "Critical Ragging Breaches",
             value: data.summary.critical_breaches_count,
             subtitle: "Active Watchtower cron monitoring",
             icon: ShieldAlert,
-            color: "text-red-400",
-            bg: "bg-red-500/10",
+            color: "text-white",
+            bg: "bg-white/10 border border-white/20",
           },
           {
             title: "Statutory SLA Compliance",
             value: `${data.summary.overall_sla_compliance}%`,
             subtitle: "Exceeds 95% AICTE benchmark",
             icon: CheckCircle2,
-            color: "text-purple-400",
-            bg: "bg-purple-500/10",
+            color: "text-zinc-300",
+            bg: "bg-zinc-800/80 border border-zinc-700/50",
           },
         ].map((card, idx) => (
           <motion.div
@@ -255,10 +255,10 @@ export default function AdminDashboardPage() {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: idx * 0.08, duration: 0.4 }}
-            className="glass-panel p-5 rounded-2xl border border-slate-800/80 space-y-3"
+            className="glass-panel p-5 rounded-2xl border border-zinc-800/80 hover:border-white/20 transition-colors space-y-3"
           >
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-slate-400">{card.title}</span>
+              <span className="text-xs font-medium text-zinc-400">{card.title}</span>
               <div className={`p-2 rounded-lg ${card.bg}`}>
                 <card.icon className={`w-4 h-4 ${card.color}`} />
               </div>
@@ -266,8 +266,8 @@ export default function AdminDashboardPage() {
             <div className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
               {card.value}
             </div>
-            <div className="text-[11px] text-slate-500 flex items-center gap-1">
-              <ArrowUpRight className="w-3.5 h-3.5 text-emerald-400" />
+            <div className="text-[11px] text-zinc-400 flex items-center gap-1">
+              <ArrowUpRight className="w-3.5 h-3.5 text-zinc-300" />
               <span>{card.subtitle}</span>
             </div>
           </motion.div>
