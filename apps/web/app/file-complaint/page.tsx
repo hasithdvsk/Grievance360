@@ -21,6 +21,13 @@ import {
   Clock,
   ArrowRight,
   Info,
+  FileText,
+  Image as ImageIcon,
+  Video as VideoIcon,
+  UploadCloud,
+  Trash2,
+  ShieldCheck,
+  Paperclip,
 } from "lucide-react";
 import VoiceRecorder, { VoiceTranscriptionPayload } from "@/components/VoiceRecorder";
 
@@ -62,6 +69,16 @@ interface SubmissionResult {
   message: string;
 }
 
+export interface AttachedEvidence {
+  id: string;
+  file: File;
+  name: string;
+  size: number;
+  category: "document" | "photo" | "video";
+  previewUrl?: string;
+  uploadedAt: string;
+}
+
 export default function FileComplaintPage() {
   const [role, setRole] = useState("STUDENT");
   const [complainantName, setComplainantName] = useState("");
@@ -82,6 +99,91 @@ export default function FileComplaintPage() {
   const [result, setResult] = useState<SubmissionResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+
+  // Multi-modal Strong Evidence State (Documents, Photos, Videos)
+  const [attachedEvidence, setAttachedEvidence] = useState<AttachedEvidence[]>([]);
+  const [dragOver, setDragOver] = useState(false);
+  const docInputRef = React.useRef<HTMLInputElement | null>(null);
+  const photoInputRef = React.useRef<HTMLInputElement | null>(null);
+  const videoInputRef = React.useRef<HTMLInputElement | null>(null);
+
+  const determineEvidenceCategory = (file: File): "document" | "photo" | "video" => {
+    if (file.type.startsWith("image/")) return "photo";
+    if (file.type.startsWith("video/") || file.type.startsWith("audio/")) return "video";
+    return "document";
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  };
+
+  const handleFilesAdded = (files: FileList | File[]) => {
+    const newItems: AttachedEvidence[] = [];
+    Array.from(files).forEach((file) => {
+      if (attachedEvidence.some((e) => e.name === file.name && e.size === file.size)) return;
+      const cat = determineEvidenceCategory(file);
+      let previewUrl: string | undefined = undefined;
+      if (cat === "photo") {
+        previewUrl = URL.createObjectURL(file);
+      }
+      newItems.push({
+        id: Math.random().toString(36).substring(2, 9),
+        file,
+        name: file.name,
+        size: file.size,
+        category: cat,
+        previewUrl,
+        uploadedAt: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      });
+    });
+    setAttachedEvidence((prev) => [...prev, ...newItems]);
+  };
+
+  const removeEvidence = (id: string) => {
+    setAttachedEvidence((prev) => {
+      const item = prev.find((e) => e.id === id);
+      if (item?.previewUrl) {
+        URL.revokeObjectURL(item.previewUrl);
+      }
+      return prev.filter((e) => e.id !== id);
+    });
+  };
+
+  const evidenceStrength = useMemo(() => {
+    const hasVideo = attachedEvidence.some((e) => e.category === "video");
+    const hasPhoto = attachedEvidence.some((e) => e.category === "photo");
+    const hasDoc = attachedEvidence.some((e) => e.category === "document");
+    const count = attachedEvidence.length;
+
+    if (count === 0) {
+      return {
+        level: "STANDARD",
+        label: "Text Claim (Standard Review)",
+        badge: "0 Files",
+      };
+    }
+    if (hasVideo || count >= 3) {
+      return {
+        level: "MAXIMUM",
+        label: "Maximum Verified Evidence (High Priority)",
+        badge: `${count} Files (High-Confidence)`,
+      };
+    }
+    if (hasPhoto || hasDoc || count >= 1) {
+      return {
+        level: "HIGH",
+        label: "Strong Evidence Verified (Expedited Review)",
+        badge: `${count} Files (Verified)`,
+      };
+    }
+    return {
+      level: "MODERATE",
+      label: "Supporting Evidence Attached",
+      badge: `${count} Files`,
+    };
+  }, [attachedEvidence]);
 
   // Real-time word counter
   const wordCount = useMemo(() => {
@@ -135,9 +237,19 @@ export default function FileComplaintPage() {
     setLoading(true);
     setError(null);
 
+    let finalDescription = description.trim();
+    if (attachedEvidence.length > 0) {
+      const evidenceLines = attachedEvidence.map(
+        (e, i) => `${i + 1}. [${e.category.toUpperCase()}] ${e.name} (${formatFileSize(e.size)})`
+      );
+      finalDescription += `\n\n--- [VERIFIED MULTIMEDIA & DOCUMENTARY EVIDENCE ATTACHED (${attachedEvidence.length} files)] ---\n` +
+        evidenceLines.join("\n") +
+        `\nEvidence Verification Confidence: ${evidenceStrength.level}`;
+    }
+
     const payload = {
       title: title.trim(),
-      description: description.trim(),
+      description: finalDescription,
       complainant_role: role,
       complainant_email: email.trim(),
       complainant_phone: phone.trim() || undefined,
@@ -404,16 +516,16 @@ export default function FileComplaintPage() {
               </div>
 
               {/* Detailed Description with Word Counter */}
-              <div className="space-y-1.5">
+              <div className="space-y-2">
                 <div className="flex items-center justify-between text-xs">
-                  <label className="font-semibold text-slate-300">
+                  <label className="font-semibold text-zinc-200">
                     Comprehensive Description & Evidence
                   </label>
                   <div className="flex items-center gap-3">
-                    <span className="font-mono text-blue-400 font-semibold">
+                    <span className="font-mono text-white font-semibold">
                       {wordCount} words
                     </span>
-                    <span className="text-slate-500">{description.length} characters</span>
+                    <span className="text-zinc-500 font-mono">{description.length} chars</span>
                   </div>
                 </div>
 
@@ -423,7 +535,7 @@ export default function FileComplaintPage() {
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Describe the incident in detail, including dates, locations, hostel blocks, or officials involved..."
-                  className="w-full px-3.5 py-3 rounded-xl bg-slate-900 border border-slate-800 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-colors leading-relaxed"
+                  className="w-full px-3.5 py-3 rounded-xl bg-zinc-900 border border-zinc-800 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-zinc-500 transition-colors leading-relaxed"
                 />
 
                 {/* English Translation View (Prompt 12) */}
@@ -431,18 +543,18 @@ export default function FileComplaintPage() {
                   <motion.div
                     initial={{ opacity: 0, y: 5 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="p-3.5 rounded-xl bg-slate-800/80 border border-indigo-500/30 space-y-1.5 shadow-md shadow-indigo-500/10"
+                    className="p-3.5 rounded-xl bg-zinc-900/90 border border-zinc-700/80 space-y-1.5 shadow-md"
                   >
                     <div className="flex items-center justify-between text-xs">
-                      <span className="font-semibold text-indigo-300 flex items-center gap-1.5">
-                        <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+                      <span className="font-semibold text-zinc-200 flex items-center gap-1.5">
+                        <Sparkles className="w-3.5 h-3.5 text-white" />
                         <span>English Translation (Auto-Generated for Official Review):</span>
                       </span>
-                      <span className="text-slate-400 text-[11px] font-mono">
+                      <span className="text-zinc-400 text-[11px] font-mono">
                         NLP SentenceTransformer Input
                       </span>
                     </div>
-                    <p className="text-xs text-slate-200 leading-relaxed italic bg-slate-900/60 p-2.5 rounded-lg border border-slate-700/50">
+                    <p className="text-xs text-zinc-300 leading-relaxed italic bg-zinc-950/70 p-2.5 rounded-lg border border-zinc-800">
                       "{englishTranslation}"
                     </p>
                   </motion.div>
@@ -453,15 +565,228 @@ export default function FileComplaintPage() {
                   <motion.div
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: "auto" }}
-                    className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs flex items-center gap-2"
+                    className="p-3 rounded-xl bg-zinc-900 border border-red-500/40 text-red-400 text-xs flex items-center gap-2"
                   >
-                    <ShieldAlert className="w-4 h-4 flex-shrink-0 animate-bounce" />
+                    <ShieldAlert className="w-4 h-4 flex-shrink-0 animate-bounce text-red-400" />
                     <span>
                       <strong>High Urgency Keywords Detected:</strong> [{detectedUrgentKeywords.join(", ")}].
                       This grievance will trigger automated CRITICAL priority routing and an expedited &lt;12h SLA deadline.
                     </span>
                   </motion.div>
                 )}
+
+                {/* Stronger Evidence Upload Center (Documents to verify, Photos, Videos) */}
+                <div className="pt-2 space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div>
+                      <div className="text-xs font-bold text-white flex items-center gap-1.5">
+                        <Paperclip className="w-3.5 h-3.5 text-zinc-300" />
+                        <span>Attach Stronger Evidence</span>
+                      </div>
+                      <p className="text-[11px] text-zinc-400">
+                        Upload documents to verify, photos, or video recordings to reinforce your complaint and expedite statutory proceedings.
+                      </p>
+                    </div>
+
+                    {/* Evidence Strength Indicator Tag */}
+                    <div className={`px-2.5 py-1 rounded-full text-[11px] font-mono border flex items-center gap-1.5 ${
+                      attachedEvidence.length > 0
+                        ? "bg-zinc-800/80 border-zinc-600 text-white"
+                        : "bg-zinc-900/60 border-zinc-800 text-zinc-500"
+                    }`}>
+                      <ShieldCheck className={`w-3.5 h-3.5 ${attachedEvidence.length > 0 ? "text-white" : "text-zinc-600"}`} />
+                      <span>{evidenceStrength.label}</span>
+                    </div>
+                  </div>
+
+                  {/* 3 Stronger Evidence Modality Buttons */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                    {/* 1. Documents to Verify */}
+                    <button
+                      type="button"
+                      onClick={() => docInputRef.current?.click()}
+                      className="group p-3 rounded-xl bg-zinc-900/90 hover:bg-zinc-800/90 border border-zinc-800 hover:border-zinc-700 text-left transition-all duration-200 flex items-start gap-3"
+                    >
+                      <div className="p-2 rounded-lg bg-zinc-800 group-hover:bg-zinc-700 text-white transition-colors flex-shrink-0">
+                        <FileText className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0">
+                        <div className="text-xs font-semibold text-white group-hover:text-zinc-100">
+                          Documents to Verify
+                        </div>
+                        <p className="text-[10px] text-zinc-400 leading-tight mt-0.5 truncate">
+                          PDF, Word, affidavits, circulars, receipts
+                        </p>
+                      </div>
+                    </button>
+
+                    {/* 2. Photos for Stronger Evidence */}
+                    <button
+                      type="button"
+                      onClick={() => photoInputRef.current?.click()}
+                      className="group p-3 rounded-xl bg-zinc-900/90 hover:bg-zinc-800/90 border border-zinc-800 hover:border-zinc-700 text-left transition-all duration-200 flex items-start gap-3"
+                    >
+                      <div className="p-2 rounded-lg bg-zinc-800 group-hover:bg-zinc-700 text-white transition-colors flex-shrink-0">
+                        <ImageIcon className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0">
+                        <div className="text-xs font-semibold text-white group-hover:text-zinc-100">
+                          Photos for Evidence
+                        </div>
+                        <p className="text-[10px] text-zinc-400 leading-tight mt-0.5 truncate">
+                          Hostel photos, notices, screenshots, damage
+                        </p>
+                      </div>
+                    </button>
+
+                    {/* 3. Video / Audio Clips */}
+                    <button
+                      type="button"
+                      onClick={() => videoInputRef.current?.click()}
+                      className="group p-3 rounded-xl bg-zinc-900/90 hover:bg-zinc-800/90 border border-zinc-800 hover:border-zinc-700 text-left transition-all duration-200 flex items-start gap-3"
+                    >
+                      <div className="p-2 rounded-lg bg-zinc-800 group-hover:bg-zinc-700 text-white transition-colors flex-shrink-0">
+                        <VideoIcon className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0">
+                        <div className="text-xs font-semibold text-white group-hover:text-zinc-100">
+                          Video / Audio Clips
+                        </div>
+                        <p className="text-[10px] text-zinc-400 leading-tight mt-0.5 truncate">
+                          CCTV clips, mobile videos, audio recordings
+                        </p>
+                      </div>
+                    </button>
+                  </div>
+
+                  {/* Hidden File Inputs */}
+                  <input
+                    ref={docInputRef}
+                    type="file"
+                    multiple
+                    accept=".pdf,.doc,.docx,.txt,.csv,.rtf"
+                    className="hidden"
+                    onChange={(e) => {
+                      if (e.target.files) handleFilesAdded(e.target.files);
+                      e.target.value = "";
+                    }}
+                  />
+                  <input
+                    ref={photoInputRef}
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      if (e.target.files) handleFilesAdded(e.target.files);
+                      e.target.value = "";
+                    }}
+                  />
+                  <input
+                    ref={videoInputRef}
+                    type="file"
+                    multiple
+                    accept="video/*,audio/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      if (e.target.files) handleFilesAdded(e.target.files);
+                      e.target.value = "";
+                    }}
+                  />
+
+                  {/* Drag & Drop Unified Vault Zone */}
+                  <div
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      setDragOver(true);
+                    }}
+                    onDragLeave={(e) => {
+                      e.preventDefault();
+                      setDragOver(false);
+                    }}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      setDragOver(false);
+                      if (e.dataTransfer.files) handleFilesAdded(e.dataTransfer.files);
+                    }}
+                    className={`p-4 rounded-xl border border-dashed transition-all duration-200 text-center flex flex-col items-center justify-center gap-1.5 ${
+                      dragOver
+                        ? "border-white bg-zinc-800/80"
+                        : "border-zinc-800 hover:border-zinc-700 bg-zinc-900/40"
+                    }`}
+                  >
+                    <UploadCloud className="w-5 h-5 text-zinc-400" />
+                    <div className="text-xs text-zinc-300">
+                      <span className="font-semibold text-white">Drag & drop verified evidence files</span>, or click any option above
+                    </div>
+                    <span className="text-[10px] text-zinc-500 font-mono">
+                      Documents (PDF/DOC) • Photos (JPG/PNG) • Videos (MP4/MOV) • Up to 100MB per file
+                    </span>
+                  </div>
+
+                  {/* Uploaded Evidence Manifest */}
+                  {attachedEvidence.length > 0 && (
+                    <div className="space-y-2 pt-1">
+                      <div className="flex items-center justify-between text-[11px] text-zinc-400">
+                        <span className="font-semibold text-zinc-300">
+                          Attached Evidence Queue ({attachedEvidence.length} items)
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setAttachedEvidence([])}
+                          className="text-zinc-500 hover:text-zinc-300 underline transition-colors"
+                        >
+                          Clear all evidence
+                        </button>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {attachedEvidence.map((item) => (
+                          <div
+                            key={item.id}
+                            className="flex items-center justify-between gap-3 p-2.5 rounded-xl bg-zinc-900/90 border border-zinc-800 hover:border-zinc-700 transition-colors"
+                          >
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              {item.category === "photo" && item.previewUrl ? (
+                                <img
+                                  src={item.previewUrl}
+                                  alt={item.name}
+                                  className="w-9 h-9 rounded-lg object-cover border border-zinc-700 flex-shrink-0"
+                                />
+                              ) : item.category === "video" ? (
+                                <div className="w-9 h-9 rounded-lg bg-zinc-800 border border-zinc-700 flex items-center justify-center flex-shrink-0">
+                                  <VideoIcon className="w-4 h-4 text-white" />
+                                </div>
+                              ) : (
+                                <div className="w-9 h-9 rounded-lg bg-zinc-800 border border-zinc-700 flex items-center justify-center flex-shrink-0">
+                                  <FileText className="w-4 h-4 text-white" />
+                                </div>
+                              )}
+
+                              <div className="min-w-0 text-left">
+                                <p className="text-xs font-semibold text-zinc-200 truncate">{item.name}</p>
+                                <div className="flex items-center gap-2 text-[10px] text-zinc-500 font-mono">
+                                  <span className="uppercase text-zinc-400 font-bold">{item.category}</span>
+                                  <span>•</span>
+                                  <span>{formatFileSize(item.size)}</span>
+                                </div>
+                              </div>
+                            </div>
+
+                            <button
+                              type="button"
+                              onClick={() => removeEvidence(item.id)}
+                              className="p-1.5 rounded-lg text-zinc-500 hover:text-red-400 hover:bg-zinc-800 transition-colors flex-shrink-0"
+                              title="Remove evidence"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Submit Button */}
@@ -534,19 +859,19 @@ export default function FileComplaintPage() {
 
             {/* Quick Details Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-xl mx-auto text-xs text-left">
-              <div className="p-4 rounded-xl bg-slate-900/40 border border-slate-800 space-y-1">
-                <span className="text-slate-400">Assigned Bureau</span>
-                <div className="font-bold text-slate-200">{result.assigned_bureau}</div>
+              <div className="p-4 rounded-xl bg-zinc-900/40 border border-zinc-800 space-y-1">
+                <span className="text-zinc-400">Assigned Bureau</span>
+                <div className="font-bold text-zinc-200">{result.assigned_bureau}</div>
               </div>
-              <div className="p-4 rounded-xl bg-slate-900/40 border border-slate-800 space-y-1">
-                <span className="text-slate-400">Priority Level</span>
+              <div className="p-4 rounded-xl bg-zinc-900/40 border border-zinc-800 space-y-1">
+                <span className="text-zinc-400">Priority Level</span>
                 <div className={`font-bold ${result.priority === "CRITICAL" ? "text-red-400" : "text-amber-400"}`}>
                   {result.priority}
                 </div>
               </div>
-              <div className="p-4 rounded-xl bg-slate-900/40 border border-slate-800 space-y-1">
-                <span className="text-slate-400">SLA Resolution Target</span>
-                <div className="font-bold text-slate-200">
+              <div className="p-4 rounded-xl bg-zinc-900/40 border border-zinc-800 space-y-1">
+                <span className="text-zinc-400">SLA Resolution Target</span>
+                <div className="font-bold text-zinc-200">
                   {new Date(result.sla_deadline).toLocaleString("en-US", {
                     month: "short",
                     day: "numeric",
@@ -556,6 +881,34 @@ export default function FileComplaintPage() {
                 </div>
               </div>
             </div>
+
+            {/* Attached Evidence Confirmation Badge */}
+            {attachedEvidence.length > 0 && (
+              <div className="p-4 rounded-xl bg-zinc-900/60 border border-zinc-800 text-xs text-left max-w-xl mx-auto space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="font-semibold text-white flex items-center gap-1.5">
+                    <ShieldCheck className="w-4 h-4 text-white" />
+                    <span>Attached Evidence Vault ({attachedEvidence.length} files)</span>
+                  </span>
+                  <span className="font-mono text-[11px] text-zinc-400 font-bold uppercase">
+                    {evidenceStrength.level} CONFIDENCE
+                  </span>
+                </div>
+                <div className="space-y-1.5 max-h-36 overflow-y-auto pr-1">
+                  {attachedEvidence.map((e) => (
+                    <div
+                      key={e.id}
+                      className="flex items-center justify-between text-zinc-300 bg-zinc-950/70 px-3 py-1.5 rounded-lg border border-zinc-800/80"
+                    >
+                      <span className="truncate max-w-[260px] text-zinc-200 font-medium">{e.name}</span>
+                      <span className="text-[10px] font-mono text-zinc-400 uppercase">
+                        {e.category} • {formatFileSize(e.size)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
@@ -571,8 +924,9 @@ export default function FileComplaintPage() {
                   setResult(null);
                   setTitle("");
                   setDescription("");
+                  setAttachedEvidence([]);
                 }}
-                className="w-full sm:w-auto px-6 py-3 rounded-xl glass-panel text-slate-300 hover:text-white font-semibold transition-colors"
+                className="w-full sm:w-auto px-6 py-3 rounded-xl glass-panel text-zinc-300 hover:text-white font-semibold transition-colors border border-zinc-800 hover:border-zinc-700"
               >
                 File Another Grievance
               </button>

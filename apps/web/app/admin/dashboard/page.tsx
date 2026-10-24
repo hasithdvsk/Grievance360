@@ -364,18 +364,18 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* PostGIS Top 10 Hotspot Regional Table */}
-      <div className="glass-panel p-6 rounded-2xl border border-slate-800/80 space-y-4">
+      <div className="glass-panel p-6 rounded-2xl border border-zinc-800/80 space-y-4">
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-base font-bold text-white flex items-center gap-2">
-              <MapPin className="w-4 h-4 text-red-400" />
+              <MapPin className="w-4 h-4 text-white" />
               <span>PostGIS Geospatial Hotspots (Top Unresolved Concentrations)</span>
             </h3>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-zinc-400">
               Clustered using WGS 84 (`GEOGRAPHY(POINT, 4326)`) coordinates and spatial GIST indexes
             </p>
           </div>
-          <span className="px-3 py-1 rounded-full bg-slate-800 text-[11px] font-semibold text-slate-300">
+          <span className="px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-[11px] font-semibold text-zinc-300">
             Top 10 Regions
           </span>
         </div>
@@ -383,45 +383,43 @@ export default function AdminDashboardPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead>
-              <tr className="border-b border-slate-800 text-slate-400">
+              <tr className="border-b border-zinc-800 text-zinc-400">
                 <th className="pb-3 font-semibold">Educational Institution</th>
                 <th className="pb-3 font-semibold">City & State</th>
                 <th className="pb-3 font-semibold">WGS 84 Coordinates</th>
                 <th className="pb-3 font-semibold">Compliance Rating</th>
                 <th className="pb-3 font-semibold">Total Intake</th>
-                <th className="pb-3 font-semibold">Unresolved</th>
+                <th className="pb-3 font-semibold">Unresolved Cases</th>
                 <th className="pb-3 font-semibold">Critical Incidents</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/60">
+            <tbody className="divide-y divide-zinc-800/60">
               {data.top_hotspot_regions.map((region) => (
-                <tr key={region.institution_id} className="hover:bg-slate-800/30 transition-colors">
+                <tr key={region.institution_id} className="hover:bg-zinc-900/40 transition-colors">
                   <td className="py-3 font-bold text-white">{region.name}</td>
-                  <td className="py-3 text-slate-300">
+                  <td className="py-3 text-zinc-300">
                     {region.city}, {region.state}
                   </td>
-                  <td className="py-3 font-mono text-[11px] text-blue-400">
+                  <td className="py-3 font-mono text-[11px] text-zinc-400">
                     {region.latitude.toFixed(4)}°N, {region.longitude.toFixed(4)}°E
                   </td>
                   <td className="py-3">
-                    <span className="px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 font-semibold border border-emerald-500/20">
+                    <span className="font-mono text-sm font-bold text-white">
                       {region.compliance_score}%
                     </span>
                   </td>
-                  <td className="py-3 font-semibold text-slate-200">{region.total_complaints}</td>
+                  <td className="py-3 font-mono text-sm font-semibold text-zinc-300">
+                    {region.total_complaints}
+                  </td>
                   <td className="py-3">
-                    <span className="px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-400 font-bold">
+                    <span className="font-mono text-sm font-semibold text-zinc-300">
                       {region.unresolved_complaints}
                     </span>
                   </td>
                   <td className="py-3">
-                    {region.critical_count > 0 ? (
-                      <span className="px-2 py-0.5 rounded-md bg-red-500/15 text-red-400 font-bold border border-red-500/20">
-                        {region.critical_count} Alert
-                      </span>
-                    ) : (
-                      <span className="text-slate-500 font-medium">None</span>
-                    )}
+                    <span className="font-mono text-sm font-bold text-zinc-100">
+                      {region.critical_count}
+                    </span>
                   </td>
                 </tr>
               ))}
