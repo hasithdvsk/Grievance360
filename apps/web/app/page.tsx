@@ -21,6 +21,11 @@ import {
 } from "lucide-react";
 import ComplaintTracker from "@/components/ComplaintTracker";
 import StackedBureauCards from "@/components/StackedBureauCards";
+import ScrambleText from "@/components/animations/ScrambleText";
+import SplitText from "@/components/animations/SplitText";
+import InfiniteMarquee from "@/components/animations/InfiniteMarquee";
+import InteractiveSpotlight from "@/components/animations/InteractiveSpotlight";
+import CountingNumber from "@/components/animations/CountingNumber";
 
 const HERO_STATS = [
   {
@@ -60,92 +65,115 @@ const HERO_STATS = [
 export default function HomePage() {
   return (
     <div className="space-y-16 pb-12">
-      {/* Hero Section */}
-      <section className="relative pt-12 pb-8 sm:pt-20 sm:pb-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center space-y-6 max-w-3xl mx-auto">
-          {/* Monochromatic Pill Badge */}
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/15 text-zinc-300 text-xs font-semibold shadow-inner"
-          >
-            <Sparkles className="w-3.5 h-3.5 animate-spin text-white" />
-            <span>AICTE Autonomous Redressal Intelligence Engine</span>
-          </motion.div>
-
-          {/* Heading with Platinum Metallic Sheen */}
-          <motion.h1
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="text-4xl sm:text-6xl font-extrabold tracking-tight text-white leading-tight"
-          >
-            Empowering Citizens with{" "}
-            <span className="bg-gradient-to-r from-white via-zinc-200 to-zinc-400 bg-clip-text text-transparent">
-              AI-Driven Redressal
-            </span>
-          </motion.h1>
-
-          {/* Subtitle */}
-          <motion.p
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="text-base sm:text-lg text-zinc-400 leading-relaxed"
-          >
-            Integrated portal for registering, monitoring, and tracking institution complaints
-            across AICTE bureaus. Features automated sentence-transformer triage, PostGIS
-            spatial mapping, and live SLA countdowns.
-          </motion.p>
-
-          {/* Call to Actions */}
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4"
-          >
-            <Link
-              href="/file-complaint"
-              className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl bg-white hover:bg-zinc-200 font-bold text-black shadow-xl shadow-white/10 hover:scale-[1.02] border border-white transition-all"
-            >
-              <FilePlus2 className="w-5 h-5 text-black" />
-              <span>File a Grievance</span>
-              <ArrowRight className="w-4 h-4 text-black" />
-            </Link>
-
-            <a
-              href="#tracker"
-              className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl glass-panel hover:bg-zinc-900/90 font-semibold text-zinc-300 hover:text-white border border-zinc-700/80 hover:border-zinc-500 transition-all"
-            >
-              <span>Track Ticket Status</span>
-            </a>
-          </motion.div>
-        </div>
-
-        {/* Animated Hero Stats KPI Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-16">
-          {HERO_STATS.map((stat, idx) => (
+      {/* Interactive Cursor Spotlight Container */}
+      <InteractiveSpotlight>
+        {/* Hero Section */}
+        <section className="relative pt-12 pb-8 sm:pt-20 sm:pb-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center space-y-6 max-w-4xl mx-auto">
+            {/* Monochromatic Pill Badge with Live Pulse */}
             <motion.div
-              key={stat.title}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.2 + idx * 0.08 }}
-              className="glass-panel glass-panel-hover p-5 rounded-2xl space-y-2 border border-zinc-800/80 hover:border-white/20 transition-colors"
+              transition={{ duration: 0.4 }}
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/15 text-zinc-300 text-xs font-semibold shadow-inner backdrop-blur-md hover:border-white/30 transition-colors"
             >
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-medium text-zinc-400">{stat.title}</span>
-                <div className={`p-2 rounded-lg ${stat.bg}`}>
-                  <stat.icon className={`w-4 h-4 ${stat.color}`} />
-                </div>
-              </div>
-              <div className="text-3xl font-extrabold text-white tracking-tight">{stat.value}</div>
-              <div className="text-[11px] text-zinc-400 font-medium">{stat.change}</div>
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-white" />
+              </span>
+              <Sparkles className="w-3.5 h-3.5 animate-spin text-white" />
+              <span>AICTE Autonomous Redressal Intelligence Engine</span>
             </motion.div>
-          ))}
-        </div>
-      </section>
+
+            {/* Kinetic Typography Headline with 3D Split Character Stagger & Rotating Scramble Text */}
+            <div className="space-y-2">
+              <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-white leading-tight">
+                <SplitText text="Empowering Citizens with" />
+              </h1>
+
+              {/* Dynamic Deciphering / Moving Letters Engine */}
+              <div className="pt-1">
+                <ScrambleText
+                  phrases={[
+                    "AI-Driven Redressal",
+                    "Statutory 24h Accountability",
+                    "Zero-Tolerance Campus Safety",
+                    "Autonomous Bureau Routing",
+                    "Geospatial SLA Enforcement",
+                  ]}
+                  className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight bg-gradient-to-r from-white via-zinc-200 to-zinc-400 bg-clip-text text-transparent drop-shadow-[0_0_24px_rgba(255,255,255,0.2)]"
+                />
+              </div>
+            </div>
+
+            {/* Subtitle with Kinetic Fade */}
+            <motion.p
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="text-base sm:text-lg text-zinc-400 leading-relaxed max-w-2xl mx-auto"
+            >
+              Integrated portal for registering, monitoring, and tracking institution complaints
+              across AICTE bureaus. Features automated sentence-transformer triage, PostGIS
+              spatial mapping, and live SLA countdowns.
+            </motion.p>
+
+            {/* Call to Actions with Shimmer & Spring Micro-interactions */}
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4"
+            >
+              <Link
+                href="/file-complaint"
+                className="group relative w-full sm:w-auto overflow-hidden flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl bg-white hover:bg-zinc-100 font-bold text-black shadow-xl shadow-white/10 hover:scale-[1.02] border border-white transition-all active:scale-[0.98]"
+              >
+                {/* Moving Specular Shimmer Beam */}
+                <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-black/10 to-transparent pointer-events-none" />
+                <FilePlus2 className="w-5 h-5 text-black" />
+                <span>File a Grievance</span>
+                <ArrowRight className="w-4 h-4 text-black group-hover:translate-x-1 transition-transform" />
+              </Link>
+
+              <a
+                href="#tracker"
+                className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl glass-panel hover:bg-zinc-900/90 font-semibold text-zinc-300 hover:text-white border border-zinc-700/80 hover:border-zinc-500 transition-all hover:scale-[1.02] active:scale-[0.98]"
+              >
+                <span>Track Ticket Status</span>
+              </a>
+            </motion.div>
+          </div>
+
+          {/* Animated Hero Stats KPI Grid with Counting Numbers */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-16">
+            {HERO_STATS.map((stat, idx) => (
+              <motion.div
+                key={stat.title}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.2 + idx * 0.08 }}
+                whileHover={{ y: -4, transition: { duration: 0.2 } }}
+                className="glass-panel glass-panel-hover p-5 rounded-2xl space-y-2 border border-zinc-800/80 hover:border-white/30 transition-all"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium text-zinc-400">{stat.title}</span>
+                  <div className={`p-2 rounded-lg ${stat.bg}`}>
+                    <stat.icon className={`w-4 h-4 ${stat.color}`} />
+                  </div>
+                </div>
+                <div className="text-3xl font-extrabold text-white tracking-tight">
+                  <CountingNumber value={stat.value} />
+                </div>
+                <div className="text-[11px] text-zinc-400 font-medium">{stat.change}</div>
+              </motion.div>
+            ))}
+          </div>
+        </section>
+      </InteractiveSpotlight>
+
+      {/* Infinite Awwwards Ticker Marquee */}
+      <InfiniteMarquee />
 
       {/* Embedded Complaint Tracker Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
