@@ -5,6 +5,7 @@ import { ShieldCheck } from "lucide-react";
 import ChatWidget from "@/components/ChatWidget";
 import Navbar from "@/components/Navbar";
 import CustomCursor from "@/components/CustomCursor";
+import PagePreloader from "@/components/animations/PagePreloader";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -22,6 +23,9 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className={`${inter.className} min-h-screen bg-[#050507] text-zinc-100 relative antialiased selection:bg-white selection:text-black`}>
+        {/* Awwwards Cinematic Page Initializer & Transitive Preloader */}
+        <PagePreloader />
+
         {/* Interactive Trailing Cursor Engine */}
         <CustomCursor />
 
