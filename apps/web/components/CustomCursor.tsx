@@ -6,6 +6,7 @@ import { motion, useMotionValue, useSpring } from "framer-motion";
 export const CustomCursor: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [isTextTarget, setIsTextTarget] = useState(false);
   const [isClicked, setIsClicked] = useState(false);
   const [isScrolling, setIsScrolling] = useState(false);
 
@@ -13,16 +14,16 @@ export const CustomCursor: React.FC = () => {
   const mouseX = useMotionValue(-100);
   const mouseY = useMotionValue(-100);
 
-  // Inner Dot: Highly responsive, minimal lag
-  const dotX = useSpring(mouseX, { damping: 35, stiffness: 800, mass: 0.1 });
-  const dotY = useSpring(mouseY, { damping: 35, stiffness: 800, mass: 0.1 });
+  // Inner Dot: Responsive pinpoint tracker
+  const dotX = useSpring(mouseX, { damping: 35, stiffness: 850, mass: 0.08 });
+  const dotY = useSpring(mouseY, { damping: 35, stiffness: 850, mass: 0.08 });
 
-  // Outer Ring: Spring-damped smooth trailing ring (36px dimension)
-  const ringX = useSpring(mouseX, { damping: 26, stiffness: 220, mass: 0.5 });
-  const ringY = useSpring(mouseY, { damping: 26, stiffness: 220, mass: 0.5 });
+  // Outer Ring: Spring-damped smooth trailing ring
+  const ringX = useSpring(mouseX, { damping: 24, stiffness: 240, mass: 0.4 });
+  const ringY = useSpring(mouseY, { damping: 24, stiffness: 240, mass: 0.4 });
 
   useEffect(() => {
-    // Check if the current device has fine pointer (mouse/trackpad). If touch, don't display
+    // Only activate custom cursor on fine pointers (mouse/trackpad)
     if (typeof window === "undefined") return;
     const isTouchDevice = window.matchMedia("(pointer: coarse)").matches;
     if (isTouchDevice) {
@@ -45,11 +46,16 @@ export const CustomCursor: React.FC = () => {
       const target = e.target as HTMLElement | null;
       if (!target) return;
 
+      const isText = Boolean(
+        target.closest('input, textarea, [contenteditable="true"]')
+      );
       const interactive = Boolean(
         target.closest(
           'a, button, input, textarea, select, [role="button"], [data-cursor="pointer"], .cursor-pointer'
         )
       );
+
+      setIsTextTarget(isText);
       setIsHovered(interactive);
     };
 
@@ -86,18 +92,23 @@ export const CustomCursor: React.FC = () => {
 
   if (!isVisible) return null;
 
-  // Determine scale dynamics
+  // Determine compact, non-obtrusive scale dynamics
   let ringScale = 1;
-  if (isHovered) {
-    ringScale = 2.2;
+  if (isTextTarget) {
+    // Contract slightly over text inputs to maintain high visibility and precision
+    ringScale = 0.85;
+  } else if (isHovered) {
+    // Subtle, clean hover expansion (reduced from bulky 2.2 to comfortable 1.3)
+    ringScale = 1.3;
   }
+
   if (isClicked) {
-    ringScale = isHovered ? 1.7 : 0.8;
+    ringScale = 0.75;
   }
 
   return (
     <div className="pointer-events-none fixed inset-0 z-[99999] overflow-hidden select-none">
-      {/* Outer Spring-Damped Glassmorphic Trailing Ring (36px nominal) */}
+      {/* Outer Spring-Damped Glassmorphic Trailing Ring (Compact 32px, crystal translucent) */}
       <motion.div
         style={{
           x: ringX,
@@ -107,27 +118,32 @@ export const CustomCursor: React.FC = () => {
         }}
         animate={{
           scale: ringScale,
-          scaleY: isScrolling ? 1.3 : ringScale,
-          scaleX: isScrolling ? 0.75 : ringScale,
-          borderColor: isHovered
+          scaleY: isScrolling ? 1.2 : ringScale,
+          scaleX: isScrolling ? 0.8 : ringScale,
+          borderColor: isTextTarget
+            ? "rgba(6, 182, 212, 0.65)"
+            : isHovered
             ? "rgba(6, 182, 212, 0.8)"
-            : "rgba(99, 102, 241, 0.45)",
-          backgroundColor: isHovered
-            ? "rgba(6, 182, 212, 0.18)"
-            : "rgba(99, 102, 241, 0.1)",
+            : "rgba(99, 102, 241, 0.4)",
+          // Ultra-translucent background so all underlying text/letters remain 100% visible
+          backgroundColor: isTextTarget
+            ? "rgba(6, 182, 212, 0.02)"
+            : isHovered
+            ? "rgba(6, 182, 212, 0.06)"
+            : "rgba(99, 102, 241, 0.03)",
           boxShadow: isHovered
-            ? "0 0 24px 2px rgba(6, 182, 212, 0.55), inset 0 0 10px rgba(6, 182, 212, 0.3)"
-            : "0 0 14px 1px rgba(99, 102, 241, 0.25)",
+            ? "0 0 16px 1px rgba(6, 182, 212, 0.35)"
+            : "0 0 10px rgba(99, 102, 241, 0.2)",
         }}
         transition={{
           type: "spring",
-          stiffness: isClicked ? 600 : 350,
-          damping: isClicked ? 18 : 24,
+          stiffness: isClicked ? 650 : 380,
+          damping: isClicked ? 18 : 25,
         }}
-        className="w-9 h-9 rounded-full border border-indigo-400/40 bg-indigo-500/10 backdrop-blur-sm pointer-events-none transition-colors duration-150"
+        className="w-8 h-8 rounded-full border pointer-events-none transition-colors duration-150"
       />
 
-      {/* Inner Dot: Sharp 8px Glowing Cyan Pointer */}
+      {/* Inner Dot: Sharp, delicate glowing cyan pointer */}
       <motion.div
         style={{
           x: dotX,
@@ -136,11 +152,11 @@ export const CustomCursor: React.FC = () => {
           translateY: "-50%",
         }}
         animate={{
-          scale: isClicked ? 0.7 : isHovered ? 1.3 : 1,
+          scale: isClicked ? 0.7 : isTextTarget ? 0.85 : isHovered ? 1.15 : 1,
           opacity: isVisible ? 1 : 0,
         }}
-        transition={{ type: "spring", stiffness: 700, damping: 30 }}
-        className="w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_12px_rgba(6,182,212,0.9)] pointer-events-none"
+        transition={{ type: "spring", stiffness: 750, damping: 30 }}
+        className="w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(6,182,212,0.85)] pointer-events-none"
       />
     </div>
   );
