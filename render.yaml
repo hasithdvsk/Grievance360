@@ -17,6 +17,20 @@ services:
           name: grievance360-redis
           property: connectionString
 
+  - type: web
+    name: grievance360-web
+    runtime: node
+    buildCommand: "npm install && npm run build --workspace=@grievance360/web"
+    startCommand: "npm run start --workspace=@grievance360/web"
+    envVars:
+      - key: NODE_VERSION
+        value: 20.17.0
+      - key: NEXT_PUBLIC_API_URL
+        fromService:
+          type: web
+          name: grievance360-api
+          property: host
+
   - type: keyvalue
     name: grievance360-redis
     ipAllowList: []

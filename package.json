@@ -8,6 +8,7 @@
     "packages/*"
   ],
   "scripts": {
+    "build": "npm run build --workspace=@grievance360/web",
     "dev:web": "npm run dev --workspace=@grievance360/web",
     "build:web": "npm run build --workspace=@grievance360/web",
     "lint:web": "npm run lint --workspace=@grievance360/web",
